@@ -1,1 +1,46 @@
 @import "tailwindcss";
+
+@theme {
+	--color-primary-background: #141924;
+	--color-primary-border: #282828;
+	--color-accent-purple: #f53361;
+	--breakpoint-xs: 520px;
+	--breakpoint-sm: 768px;
+	--breakpoint-md: 1024px;
+	--breakpoint-lg: 1320px;
+	--breakpoint-xl: 1520px;
+}
+
+@utility flex-middle {
+	@apply flex items-center justify-center;
+}
+
+@utility raise-up {
+	@apply relative z-[1];
+}
+
+*,
+*::before,
+*::after {
+	@apply transition-all duration-200;
+}
+
+body {
+	@apply text-white text-[14px] font-[var(--font-inter)];
+}
+
+button {
+	@apply cursor-pointer;
+}
+
+input {
+	@apply max-w-full;
+}
+
+input:focus {
+	@apply outline-none;
+}
+
+.os-scrollbar {
+	--os-handle-bg: white;
+}
