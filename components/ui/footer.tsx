@@ -19,7 +19,7 @@ const Navigation = ({
 			)}
 		>
 			{title && (
-				<h6 className="text-white mb-1 font-extrabold text-[14px] uppercase">
+				<h6 className="text-white mb-1 font-extrabold uppercase">
 					{title}
 				</h6>
 			)}

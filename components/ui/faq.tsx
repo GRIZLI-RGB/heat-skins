@@ -43,7 +43,7 @@ const FAQItem = ({
 				}`}
 			>
 				<div
-					className="text-[#c6cddb] leading-[24px] pt-6 pb-5 pl-6 pr-[60px] max-xs:text-[13px] max-xs:px-4"
+					className="text-secondary-text leading-[24px] pt-6 pb-5 pl-6 pr-[60px] max-xs:text-[13px] max-xs:px-4"
 					dangerouslySetInnerHTML={{ __html: answer }}
 				/>
 			</div>

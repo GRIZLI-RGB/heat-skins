@@ -17,26 +17,23 @@ export default function ClientWrapper({
 	const disableBodyScroll = useAtomValue(_disableBodyScroll_);
 
 	useEffect(() => {
-		const instance = OverlayScrollbars(document.body, {
-			overflow: {
-				x: "hidden",
-				y: "scroll",
-			},
-			scrollbars: {
-				theme: "os-theme-light",
-				autoHide: "scroll",
-			},
-		});
-
-		instance.options({
-			overflow: {
-				y: disableBodyScroll ? "hidden" : "scroll",
-			},
+		const osInstance = OverlayScrollbars(document.body, {
+			overflow: { x: "hidden", y: "scroll" },
+			scrollbars: { theme: "os-theme-light", autoHide: "scroll" },
 		});
 
 		return () => {
-			instance.destroy();
+			osInstance?.destroy();
 		};
+	}, []);
+
+	useEffect(() => {
+		const osInstance = OverlayScrollbars(document.body);
+		if (!osInstance) return;
+
+		osInstance.options({
+			overflow: { y: disableBodyScroll ? "hidden" : "scroll" },
+		});
 	}, [disableBodyScroll]);
 
 	return (

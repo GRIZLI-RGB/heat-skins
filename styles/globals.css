@@ -2,8 +2,11 @@
 
 @theme {
 	--color-primary-background: #141924;
+	--color-secondary-background: #191f2c;
 	--color-primary-border: #282828;
 	--color-accent-purple: #f53361;
+	--color-secondary-text: #c6cddb;
+	--color-primary-link: #f19f63;
 	--breakpoint-xs: 520px;
 	--breakpoint-sm: 768px;
 	--breakpoint-md: 1024px;
@@ -42,5 +45,9 @@ input:focus {
 }
 
 .os-scrollbar {
-	--os-handle-bg: white;
+	--os-handle-bg: #f53361 !important;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+	display: none;
 }
