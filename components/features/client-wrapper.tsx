@@ -163,11 +163,13 @@ export default function ClientWrapper({
 
 					<div className="max-xs:flex-col max-xs:gap-2 flex items-start gap-5">
 						<Input
+							onlyText={false}
 							type="number"
 							label="Give away"
 							placeholder="Enter number"
 						/>
 						<Input
+							onlyText={false}
 							type="number"
 							label="Receive"
 							placeholder="Enter number"

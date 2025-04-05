@@ -59,6 +59,7 @@ input:focus {
 	--os-handle-bg-hover: #e62b56 !important;
 	--os-handle-bg-active: #e62b56 !important;
 	--os-size: 7px !important;
+	z-index: 100 !important;
 }
 
 .os-scrollbar-horizontal {
@@ -73,4 +74,14 @@ input:focus {
 
 .react-responsive-modal-container::-webkit-scrollbar {
 	display: none !important;
+}
+
+.filter-to-accent-purple {
+	filter: brightness(0) saturate(100%) invert(30%) sepia(95%) saturate(3431%)
+		hue-rotate(330deg) brightness(103%) contrast(92%);
+}
+
+.filter-to-accent-purple-hover {
+	filter: brightness(0) saturate(100%) invert(30%) sepia(95%) saturate(3431%)
+		hue-rotate(330deg) brightness(103%) contrast(92%);
 }

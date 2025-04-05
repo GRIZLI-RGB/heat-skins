@@ -8,13 +8,28 @@ export default function Input({
 	label,
 	className,
 	placeholder,
+	onlyText = true,
 }: {
 	type?: "text" | "number";
 	label?: string;
 	className?: string;
 	placeholder?: string;
+	onlyText?: boolean;
 }) {
 	const [focused, setFocused] = useState(false);
+
+	if (onlyText) {
+		return (
+			<input
+				placeholder={placeholder}
+				className={clsx(
+					"px-[18px] text-[12px] font-semibold h-10 rounded-md bg-[#11151f] border border-primary-border focus:border-accent-purple placeholder:text-[#656f83]",
+					className
+				)}
+				type="text"
+			/>
+		);
+	}
 
 	return (
 		<div className={clsx(className)}>
