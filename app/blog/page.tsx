@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function BlogPage() {
 	return (
 		<div className="pt-[45px] pb-[68px] mx-auto max-w-[1250px] px-5 max-sm:pt-10 max-sm:pb-12">
@@ -19,12 +21,12 @@ export default function BlogPage() {
 					interactive prototypes are ambiguous and will be made.
 				</p>
 
-				<a
+				<Link
 					href="/blog/article"
 					className="max-xs:w-full uppercase border border-accent-purple rounded-md leading-[100%] bg-accent-purple/20 px-5 py-4 font-bold text-[15px] hover:bg-accent-purple"
 				>
 					Подробнее ›
-				</a>
+				</Link>
 			</div>
 
 			<div className="mt-7">
@@ -36,7 +38,7 @@ export default function BlogPage() {
 				<div className="mt-[30px] flex items-start gap-4 max-sm:mt-6 max-sm:flex-col">
 					<div className="grid grid-cols-3 gap-4 max-md:grid-cols-2 w-full max-xs:!grid-cols-1">
 						{[...new Array(9)].map((_, index) => (
-							<a
+							<Link
 								className="max-sm:p-3.5 p-5 rounded-lg overflow-hidden h-[200px] flex flex-col items-start leading-[100%] relative group transition-all duration-300 ease-in-out"
 								href="/blog/article"
 								key={index}
@@ -57,7 +59,7 @@ export default function BlogPage() {
 								<button className="text-[12px] uppercase font-bold group-hover:text-accent-purple">
 									Read completely ›
 								</button>
-							</a>
+							</Link>
 						))}
 					</div>
 
@@ -69,7 +71,7 @@ export default function BlogPage() {
 
 						<div className="mt-5 flex flex-col gap-2">
 							{[...new Array(5)].map((_, index) => (
-								<a
+								<Link
 									href="/blog/article"
 									key={index}
 									className="rounded-md bg-[#161b27] px-4 py-3 group hover:bg-secondary-background"
@@ -83,7 +85,7 @@ export default function BlogPage() {
 									<div className="text-[11px] text-[#626a7d] mt-3.5">
 										23 Feb 2024, 16:48
 									</div>
-								</a>
+								</Link>
 							))}
 						</div>
 					</div>

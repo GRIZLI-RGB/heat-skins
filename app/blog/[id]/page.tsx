@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function BlogArticlePage() {
 	return (
 		<div className="py-12 px-5 max-w-[1250px] mx-auto max-md:py-8">
@@ -44,7 +46,9 @@ export default function BlogArticlePage() {
 					<p>
 						Clearly, the conclusions drawn on the basis of Internet
 						analytics are only a{" "}
-						<span className="text-[#f5aa33]">method of political participation</span>
+						<span className="text-[#f5aa33]">
+							method of political participation
+						</span>
 						and are functionally separated into independent
 						elements.
 					</p>
@@ -79,10 +83,10 @@ export default function BlogArticlePage() {
 					<p>
 						Within the framework of the specification of modern
 						standards, the basic scenarios of user behavior are
-						nothing more than the quintessence of marketings
-						victory over reason and should be considered exclusively
-						in the context of marketing and financial prerequisites.
-						Cartel agreements are not allowed
+						nothing more than the quintessence of marketings victory
+						over reason and should be considered exclusively in the
+						context of marketing and financial prerequisites. Cartel
+						agreements are not allowed
 					</p>
 				</div>
 			</article>
@@ -97,7 +101,7 @@ export default function BlogArticlePage() {
 
 				<div className="grid grid-cols-4 gap-4 max-md:grid-cols-2 w-full max-xs:!grid-cols-1">
 					{[...new Array(4)].map((_, index) => (
-						<a
+						<Link
 							className="max-sm:p-3.5 p-5 rounded-lg overflow-hidden h-[200px] flex flex-col items-start leading-[100%] relative group transition-all duration-300 ease-in-out"
 							href="/blog/article"
 							key={index}
@@ -118,7 +122,7 @@ export default function BlogArticlePage() {
 							<button className="text-[12px] uppercase font-bold group-hover:text-accent-purple">
 								Read completely ›
 							</button>
-						</a>
+						</Link>
 					))}
 				</div>
 			</div>
