@@ -28,6 +28,16 @@
 	@apply transition-all duration-200;
 }
 
+input {
+	width: 100%;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}
+
 body {
 	@apply text-white text-[14px] font-[var(--font-inter)];
 }
@@ -46,8 +56,21 @@ input:focus {
 
 .os-scrollbar {
 	--os-handle-bg: #f53361 !important;
+	--os-handle-bg-hover: #e62b56 !important;
+	--os-handle-bg-active: #e62b56 !important;
+	--os-size: 7px !important;
+}
+
+.os-scrollbar-horizontal {
+	--os-track-bg: #11151e !important;
+	--os-track-bg-hover: #11151e !important;
+	--os-track-bg-active: #11151e !important;
 }
 
 .hide-scrollbar::-webkit-scrollbar {
 	display: none;
+}
+
+.react-responsive-modal-container::-webkit-scrollbar {
+	display: none !important;
 }
