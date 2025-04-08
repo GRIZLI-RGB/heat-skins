@@ -6,44 +6,125 @@ import ItemCard from "@/components/features/item-card";
 import clsx from "clsx";
 import { useState } from "react";
 
+const FilterByType = ({ className }: { className?: string }) => {
+	return (
+		<section
+			className={clsx(
+				"flex gap-2.5 border-b border-[#1b212e] p-[18px] max-lg:gap-1",
+				className
+			)}
+		>
+			{[
+				"Knife",
+				"Gun",
+				"Rifle",
+				"AWP",
+				"Submachine",
+				"Shotgun",
+				"Machinegun",
+				"Gloves",
+				"Sticker",
+				"Other",
+			].map((item) => (
+				<DesiredItemDropdown
+					className="max-lg:max-w-[200px] max-xs:!max-w-none"
+					text={item}
+					key={item}
+					options={[
+						{
+							id: "1",
+							name: "Karambit",
+							image: "/images/knife.png",
+						},
+						{
+							id: "2",
+							name: "Knife",
+							image: "/images/knife.png",
+						},
+					]}
+					onSelect={(option) => console.log("Selected:", option)}
+				/>
+			))}
+		</section>
+	);
+};
+
 export default function HomePage() {
 	const [filterTab, setFilterTab] = useState<"cs2" | "dota2">("cs2");
 
+	const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+
 	return (
 		<>
-			<section className="flex gap-2.5 border-b border-[#1b212e] p-[18px] max-lg:gap-1 max-lg:flex-wrap max-xs:grid max-xs:grid-cols-1">
-				{[
-					"Knife",
-					"Gun",
-					"Rifle",
-					"AWP",
-					"Submachine",
-					"Shotgun",
-					"Machinegun",
-					"Gloves",
-					"Sticker",
-					"Other",
-				].map((item) => (
-					<DesiredItemDropdown
-						className="max-lg:max-w-[200px] max-xs:!max-w-none"
-						text={item}
-						key={item}
-						options={[
-							{
-								id: "1",
-								name: "Karambit",
-								image: "/images/knife.png",
-							},
-							{
-								id: "2",
-								name: "Knife",
-								image: "/images/knife.png",
-							},
-						]}
-						onSelect={(option) => console.log("Selected:", option)}
-					/>
-				))}
-			</section>
+			<div className="p-5 pb-1 hidden max-xs:block">
+				<button
+					className="hover:brightness-125 max-w-full flex items-center justify-center uppercase text-center text-[16px] font-bold bg-primary-background border border-primary-border rounded-md w-full h-12"
+					onClick={() => setIsMobileFilterOpen(!isMobileFilterOpen)}
+				>
+					Filter by type
+					<svg
+						className={`ml-2 transition-transform duration-200 ${
+							isMobileFilterOpen ? "rotate-180" : ""
+						}`}
+						width="16"
+						height="16"
+						viewBox="0 0 24 24"
+						fill="none"
+						xmlns="http://www.w3.org/2000/svg"
+					>
+						<path
+							d="M19 9L12 16L5 9"
+							stroke="currentColor"
+							strokeWidth="2"
+							strokeLinecap="round"
+							strokeLinejoin="round"
+						/>
+					</svg>
+				</button>
+			</div>
+
+			<div
+				className={clsx(
+					"backdrop-blur-md left-0 top-0 w-full h-full fixed z-[49]",
+					isMobileFilterOpen
+						? "opacity-100"
+						: "opacity-0 pointer-events-none"
+				)}
+			/>
+
+			<div
+				className={clsx(
+					"fixed left-0 right-0 bottom-0 z-50 bg-primary-background overflow-hidden",
+					isMobileFilterOpen
+						? "opacity-100"
+						: "opacity-0 pointer-events-none"
+				)}
+			>
+				<div className="p-5 border-t border-primary-border rounded-t-lg">
+					<div className="flex justify-between items-center mb-4">
+						<h3 className="text-lg font-bold">Filter by type</h3>
+
+						<button
+							onClick={() => setIsMobileFilterOpen(false)}
+							className="hover:brightness-[2000%]"
+						>
+							<img
+								src="/icons/close.png"
+								className="brightness-150"
+								alt=""
+							/>
+						</button>
+					</div>
+
+					<div
+						className="max-h-[60vh] overflow-y-auto hide-scrollbar pb-4"
+					>
+						<FilterByType className="grid grid-cols-1 gap-2 !p-0 !border-0" />
+					</div>
+				</div>
+			</div>
+
+			<FilterByType className="max-lg:flex-wrap max-xs:hidden" />
 
 			<div className="flex items-start max-sm:flex-col">
 				<section className="border-r max-sm:border-r-0 max-sm:w-full border-[#1b212e] p-[18px] pb-[90px] max-sm:pb-0 w-[274px] shrink-0">

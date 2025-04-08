@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { memo, useRef, useState } from "react";
 import { useOnClickOutside } from "usehooks-ts";
 import { motion, AnimatePresence } from "motion/react";
 import clsx from "clsx";
@@ -11,7 +11,7 @@ interface SkinOption {
 	image: string;
 }
 
-export default function DesiredItemDropdown({
+function DesiredItemDropdown({
 	className,
 	text,
 	options,
@@ -104,3 +104,5 @@ export default function DesiredItemDropdown({
 		</div>
 	);
 }
+
+export default memo(DesiredItemDropdown);
