@@ -12,6 +12,14 @@ import Modal from "../ui/modal";
 import Input from "../ui/input";
 import CurrencyDropdown from "./currency-dropdown";
 
+const Button = ({ text }: { text: string }) => {
+	return (
+		<button className="uppercase font-bold border border-accent-purple rounded-lg bg-accent-purple/20 hover:bg-accent-purple leading-[100%] w-full py-[25px] text-[19px] max-xs:py-5">
+			{text}
+		</button>
+	);
+};
+
 export default function ClientWrapper({
 	children,
 }: {
@@ -85,12 +93,12 @@ export default function ClientWrapper({
 
 			<Footer />
 
-			{/* <button
+			<button
 				onClick={() => setIsOpenModalsModal(!isOpenModalsModal)}
 				className="fixed bottom-5 right-5 bg-[#f53361] text-white px-4 py-2 rounded-md leading-[100%] hover:brightness-125"
 			>
 				Модалки
-			</button> */}
+			</button>
 
 			<Modal
 				open={isOpenModalsModal}
@@ -212,35 +220,184 @@ export default function ClientWrapper({
 				open={isOpenPurchasePaymentModal}
 				onClose={() => setIsOpenPurchasePaymentModal(false)}
 			>
-				2
+				<div className="p-12 min-w-[450px] text-center max-sm:min-w-0 max-sm:p-5">
+					<h6 className="font-medium text-[22px] uppercase mt-1.5">
+						Purchase payment
+					</h6>
+
+					<div className="relative py-10 flex-middle">
+						<img className="" src="/icons/loader.png" alt="" />
+
+						<img
+							src="/images/decorations/outer-shadow.png"
+							className="absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2"
+							alt=""
+						/>
+					</div>
+
+					<div className="uppercase text-[16px] mt-1">
+						Waiting for payment
+					</div>
+
+					<p className="text-secondary-text text-[13px] mt-3.5 mb-8">
+						Click on the button below to pay.
+						<br />
+						The payment will be credited within 15 minutes.
+						<br />
+						You have 60 minutes to pay
+					</p>
+
+					<Button text="Proceed to payment" />
+				</div>
 			</Modal>
 
 			<Modal
 				open={isOpenPurchaseItemsModal}
 				onClose={() => setIsOpenPurchaseItemsModal(false)}
 			>
-				3
+				<div className="p-12 min-w-[450px] text-center max-sm:min-w-0 max-sm:p-5">
+					<h6 className="font-medium text-[22px] uppercase mt-1.5">
+						Purchase of items
+					</h6>
+
+					<div className="relative py-10 flex-middle">
+						<img className="" src="/icons/bag.png" alt="" />
+
+						<img
+							src="/images/decorations/outer-shadow.png"
+							className="absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2"
+							alt=""
+						/>
+					</div>
+
+					<div className="uppercase text-[16px] mt-1">
+						The payment was successfully made
+					</div>
+
+					<p className="text-secondary-text text-[13px] mt-3.5 mb-8">
+						Skins have been successfully purchased
+						<br />
+						Go to your personal account to receive the items
+					</p>
+
+					<Button text="Go to inventory" />
+				</div>
 			</Modal>
 
 			<Modal
 				open={isOpenSuccessfulReplenishmentModal}
 				onClose={() => setIsOpenSuccessfulReplenishmentModal(false)}
 			>
-				4
+				<div className="p-12 min-w-[450px] text-center max-sm:min-w-0 max-sm:p-5">
+					<h6 className="font-medium text-[22px] uppercase mt-1.5">
+						Replenishment
+					</h6>
+
+					<div className="relative py-10 flex-middle">
+						<img className="" src="/icons/okey.png" alt="" />
+
+						<img
+							src="/images/decorations/outer-shadow.png"
+							className="absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2"
+							alt=""
+						/>
+					</div>
+
+					<div className="uppercase text-[16px] mt-1">
+						The payment was successfully made
+					</div>
+
+					<p className="text-secondary-text text-[13px] mt-3.5 mb-8">
+						The balance is topped up on{" "}
+						<span className="text-accent-purple">$500</span>
+					</p>
+
+					<button className="uppercase font-bold border border-primary-border bg-[#151a26] hover:brightness-125 rounded-lg leading-[100%] w-full py-[25px] text-[19px] max-xs:py-5">
+						Go to shopping
+					</button>
+				</div>
 			</Modal>
 
 			<Modal
 				open={isOpenNotEnoughMoneyModal}
 				onClose={() => setIsOpenNotEnoughMoneyModal(false)}
 			>
-				5
+				<div className="p-12 min-w-[450px] text-center max-sm:min-w-0 max-sm:p-5">
+					<h6 className="font-medium text-[22px] uppercase">
+						You get
+					</h6>
+
+					<span className="font-medium">
+						Total amount of{" "}
+						<span className="text-accent-purple">$800</span>
+					</span>
+
+					<div className="my-9 flex items-center gap-6 bg-[#181d2a] rounded-md px-6 py-4">
+						<img className="" src="/images/knife.png" alt="" />
+
+						<div className="flex flex-col font-medium leading-[100%] text-left">
+							<span className="text-[13px]">
+								Grow scelet | Jeans Followed
+							</span>
+							<span className="text-secondary-text text-[13px] mt-0.5 mb-3">
+								A little worn • 0.657980
+							</span>
+							<span className="text-[#f82649]">Blocked</span>
+						</div>
+					</div>
+
+					<p className="text-secondary-text text-[13px] mt-3.5 mb-8 flex items-center gap-2.5">
+						<img src="/icons/danger.png" alt="" />
+						<span>
+							There are not enough funds on the balance sheet :(
+						</span>
+					</p>
+
+					<Button text="Top up your balance" />
+				</div>
 			</Modal>
 
 			<Modal
 				open={isOpenEnoughMoneyModal}
 				onClose={() => setIsOpenEnoughMoneyModal(false)}
 			>
-				6
+				<div className="p-12 min-w-[450px] text-center max-sm:min-w-0 max-sm:p-5">
+					<h6 className="font-medium text-[22px] uppercase">
+						You get
+					</h6>
+
+					<span className="font-medium">
+						Total amount of{" "}
+						<span className="text-accent-purple">$800</span>
+					</span>
+
+					<div className="my-9 flex items-center gap-6 bg-[#181d2a] rounded-md px-6 py-4">
+						<img className="" src="/images/knife.png" alt="" />
+
+						<div className="flex flex-col font-medium leading-[100%] text-left">
+							<span className="text-[13px]">
+								Grow scelet | Jeans Followed
+							</span>
+							<span className="text-secondary-text text-[13px] mt-0.5 mb-3">
+								A little worn • 0.657980
+							</span>
+							<span className="text-[#61d124]">Unblocked</span>
+						</div>
+					</div>
+
+					<p className="text-[13px] mt-3.5 mb-8 flex items-center justify-center gap-3">
+						<img src="/icons/success.png" alt="" />
+
+						<span className="flex flex-col justify-center items-start">
+							<span>The payment was made promptly</span>
+							<span className="text-secondary-text ">
+								Go to your personal account
+							</span>
+						</span>
+					</p>
+
+					<Button text="Go to inventory" />
+				</div>
 			</Modal>
 		</>
 	);
