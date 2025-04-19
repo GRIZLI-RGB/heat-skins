@@ -6,6 +6,9 @@ const nextConfig: NextConfig = {
 			{
 				hostname: "avatars.steamstatic.com",
 			},
+			{
+				hostname: "api.topskinsmarket.com",
+			}
 		],
 	},
 };

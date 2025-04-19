@@ -1,11 +1,13 @@
 "use client";
 
 import clsx from "clsx";
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import DesiredItemDropdown from "@/components/features/desired-item-dropdown";
 import FilterDropdown from "@/components/features/filter-dropdown";
 import ItemCard from "@/components/features/item-card";
+import { getItems } from "@/lib/api";
+import { ItemType } from "@/lib/types";
 
 const FilterByType = ({ className }: { className?: string }) => {
 	return (
@@ -54,6 +56,60 @@ export default function HomePage() {
 	const [filterTab, setFilterTab] = useState<"cs2" | "dota2">("cs2");
 
 	const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+
+	const [items, setItems] = useState<ItemType[]>([]);
+	const [page, setPage] = useState(1);
+	const [hasMore, setHasMore] = useState(true);
+	const [loading, setLoading] = useState(false);
+	const observer = useRef<IntersectionObserver | null>(null);
+	const bottomRef = useRef(null);
+
+	const fetchItems = useCallback(async () => {
+		if (loading || !hasMore) return;
+		setLoading(true);
+		try {
+			const res = await getItems({ page });
+			if (res.data.data.length === 0) {
+				setHasMore(false);
+			} else {
+				setItems((prev) => [...prev, ...res.data.data]);
+				setPage((prev) => prev + 1);
+			}
+		} catch (err) {
+			console.error("Ошибка загрузки:", err);
+		} finally {
+			setLoading(false);
+		}
+	}, [page, loading, hasMore]);
+
+	useEffect(() => {
+		fetchItems();
+	}, []);
+
+	useEffect(() => {
+		if (!bottomRef.current) return;
+
+		if (observer.current) observer.current.disconnect();
+
+		observer.current = new IntersectionObserver(
+			([entry]) => {
+				if (entry.isIntersecting && hasMore && !loading) {
+					fetchItems();
+				}
+			},
+			{
+				root: null,
+				rootMargin: "200px", // 👈 подгрузка заранее
+				threshold: 0.1,
+			}
+		);
+
+		observer.current.observe(bottomRef.current);
+
+		return () => {
+			if (observer.current) observer.current.disconnect();
+		};
+	}, [bottomRef.current, fetchItems, hasMore, loading]);
 
 	return (
 		<>
@@ -219,10 +275,16 @@ export default function HomePage() {
 						</span>
 					</h3>
 
-					<div className="flex gap-3 flex-wrap max-h-[850px] overflow-scroll hide-scrollbar max-sm:grid max-sm:max-h-[600px] max-sm:gap-2 max-sm:grid-cols-2 max-[480px]:grid-cols-1">
-						{[...new Array(1000)].map((_, index) => (
-							<ItemCard key={index} />
+					<div className="flex gap-3 flex-wrap max-h-[850px] overflow-auto hide-scrollbar max-sm:grid max-sm:max-h-[600px] max-sm:gap-2 max-sm:grid-cols-2 max-[480px]:grid-cols-1">
+						{items.map((item, index) => (
+							<ItemCard key={index} item={item} />
 						))}
+						{loading && (
+							<div className="w-full text-center p-4">
+								Loading...
+							</div>
+						)}
+						<div ref={bottomRef} className="w-full h-4" />   {" "}
 					</div>
 
 					<img

@@ -1,15 +1,16 @@
 "use client";
 
+import { ItemType } from "@/lib/types";
 import clsx from "clsx";
 import { useState } from "react";
 
-export default function ItemCard() {
+export default function ItemCard({ item }: { item: ItemType }) {
 	const [hovered, setHovered] = useState(false);
 
 	return (
 		<div
 			className={clsx(
-				"relative bg-primary-background p-[14px]",
+				"relative bg-primary-background p-[14px] w-[168px]",
 				hovered ? "rounded-t-md" : "rounded-md"
 			)}
 			onMouseEnter={() => setHovered(true)}
@@ -21,24 +22,31 @@ export default function ItemCard() {
 				<img src="/images/collections/3.png" alt="" />
 			</div>
 
-			<span className="text-[15px] font-semibold">$299.17</span>
+			<span className="text-[15px] font-semibold">
+				{item.currency_symbol}
+				{item.price}
+			</span>
 
 			<img
 				className="mx-auto my-5"
-				src="/images/gradient-knife.png"
+				src={item.img || "/images/gradient-knife.png"}
 				alt=""
 			/>
 
 			<div className="flex flex-col text-[12px]">
 				<span className="font-semibold text-[#f19f63]">
-					★ Hand Wraps Dragonic
+					{item.market_hash_name || "★ Hand Wraps Dragonic"}
 				</span>
 
 				<span className="font-medium text-secondary-text -mt-0.5">
-					Constrictor
+					{item.type}
 				</span>
 
-				<span className="text-[#a4aab6] mt-1">MW / 0.87902041</span>
+				{item.wear_short_name && (
+					<span className="text-[#a4aab6] mt-1">
+						{item.wear_short_name} / {item.float || "-"}
+					</span>
+				)}
 			</div>
 
 			<img

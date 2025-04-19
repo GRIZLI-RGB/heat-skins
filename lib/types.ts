@@ -37,3 +37,38 @@ export type BlogArticleType = {
 	created_at: Date;
 	updated_at: Date;
 };
+
+// TODO
+// type, phase и т.п. = по сути константы, получаемые с бэка,
+// нужно придумать, как лучше их хранить типами
+export type ItemType = {
+	id: number;
+	market_hash_name: string;
+	type: string;
+	phase: string;
+	price: number;
+	float: number;
+	rarity: string;
+	stattrack: boolean;
+	souvenir: boolean;
+	classid: string;
+	instanceid: string;
+	real_instanceid: string;
+	asset: string;
+	old_price: number;
+	stamp: Date;
+	base_id: string;
+	paintseed: string;
+	paintindex: string;
+	chance_to_transfer: number;
+	img: string;
+	screenshot: string;
+	wear: string;
+	wear_short_name: string;
+	stickers: {
+		id: number;
+		name: string;
+		img: string;
+	}[];
+	currency_symbol: string;
+};

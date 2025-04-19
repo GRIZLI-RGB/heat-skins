@@ -1,12 +1,11 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import clsx from "clsx";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { useOnClickOutside } from "usehooks-ts";
 import { AnimatePresence, motion } from "motion/react";
 import Image from "next/image";
-import Link from "next/link";
 
 import SearchBar from "@components/features/search-bar";
 import Logo from "@components/ui/logo";
@@ -99,20 +98,25 @@ const UserBadge = ({
 	className?: string;
 	user: UserType;
 }) => {
+	const router = useRouter();
+
 	const setIsOpenReplenishmentModal = useSetAtom(_isOpenReplenishmentModal_);
+	const setIsMobileMenuOpen = useSetAtom(_isMobileMenuOpen_);
 
 	return (
 		<div className={clsx("flex items-center gap-4", className)}>
-			<Link href="/personal-account/inventory">
-				<Image
-					quality={100}
-					width={44}
-					height={44}
-					className="rounded-md overflow-hidden object-cover"
-					src={user?.avatar_url || "/images/user-avatar.png"}
-					alt=""
-				/>
-			</Link>
+			<Image
+				onClick={() => {
+					setIsMobileMenuOpen(false);
+					router.push("/personal-account/inventory");
+				}}
+				quality={100}
+				width={44}
+				height={44}
+				className="cursor-pointer rounded-md overflow-hidden object-cover aspect-square"
+				src={user?.avatar_url || "/images/user-avatar.png"}
+				alt=""
+			/>
 
 			<div className="leading-[16px] flex flex-col">
 				<span className="font-bold">{user.username}</span>

@@ -5,6 +5,7 @@ import ClientWrapper from "@/components/features/client-wrapper";
 
 import "overlayscrollbars/overlayscrollbars.css";
 import "@styles/globals.css";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
 	title: "HeatSkins",
@@ -34,7 +35,9 @@ export default function RootLayout({
 				data-overlayscrollbars-initialize
 				className={`antialiased min-h-screen h-full flex flex-col ${inter.className} bg-[#11151e]`}
 			>
-				<ClientWrapper>{children}</ClientWrapper>
+				<Suspense>
+					<ClientWrapper>{children}</ClientWrapper>
+				</Suspense>
 			</body>
 		</html>
 	);

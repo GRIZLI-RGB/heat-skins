@@ -30,7 +30,7 @@ export const editProfile = async ({
 }: {
 	email?: string;
 	trade_url?: string;
-	avatar?: File | Blob;
+	avatar?: File | Blob | string;
 }) => {
 	const formData = new FormData();
 
@@ -48,7 +48,7 @@ export const editProfile = async ({
 
 	return await api.post("edit", formData, {
 		headers: {
-			"Accept": "application/json",
+			Accept: "application/json",
 			"Content-Type": "multipart/form-data",
 		},
 	});
@@ -72,5 +72,49 @@ export const getBlogArticle = async (id: string | number) =>
 	await api.get(`blog/article/${id}`);
 
 export const getBlogBannerArticle = async () => await api.get("blog/banner");
+
+export const getItems = async ({
+	types,
+	phases,
+	price_min,
+	price_max,
+	wears,
+	rarities,
+	stattrack,
+	souvenir,
+	stickers,
+	float_min,
+	float_max,
+	page,
+}: {
+	types?: string[];
+	phases?: string[];
+	price_min?: number;
+	price_max?: number;
+	wears?: string[];
+	rarities?: string[];
+	stattrack?: boolean;
+	souvenir?: boolean;
+	stickers?: number[];
+	float_min?: number;
+	float_max?: number;
+	page?: number;
+}) =>
+	await api.get("items", {
+		params: {
+			types,
+			phases,
+			price_min,
+			price_max,
+			wears,
+			rarities,
+			stattrack,
+			souvenir,
+			stickers,
+			float_min,
+			float_max,
+			page,
+		},
+	});
 
 export default api;

@@ -72,9 +72,13 @@ export default function PersonalAccountLayout({
 
 		setGlobalLoading(true);
 
-		editProfile({
-			avatar: file,
-		}).finally(() => setGlobalLoading(false));
+		try {
+			await editProfile({ avatar: file });
+		} catch (error) {
+			console.error("Ошибка загрузки аватара:", error);
+		} finally {
+			setGlobalLoading(false);
+		}
 	};
 
 	if (user) {
@@ -87,7 +91,7 @@ export default function PersonalAccountLayout({
 								width={96}
 								height={96}
 								className={`
-      block max-sm:h-20 object-cover min-w-[96px] rounded-[8px] 
+      block max-sm:h-20 object-cover min-w-[96px] aspect-square rounded-[8px] 
       cursor-pointer transition-all duration-300
       group-hover:opacity-80 group-hover:ring-2 group-hover:ring-primary-500
     `}
