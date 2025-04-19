@@ -5,7 +5,14 @@ import { useAtomValue, useSetAtom } from "jotai";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import { _isOpenReplenishmentModal_, _user_ } from "@/lib/store";
+import {
+	_globalLoading_,
+	_isOpenReplenishmentModal_,
+	_user_,
+} from "@/lib/store";
+import { useEffect, useRef, useState } from "react";
+import { editProfile } from "@/lib/api";
+import Image from "next/image";
 
 export default function PersonalAccountLayout({
 	children,
@@ -16,53 +23,205 @@ export default function PersonalAccountLayout({
 
 	const user = useAtomValue(_user_);
 	const setIsOpenReplenishmentModal = useSetAtom(_isOpenReplenishmentModal_);
+	const setGlobalLoading = useSetAtom(_globalLoading_);
+
+	const [isEmailEditing, setIsEmailEditing] = useState(false);
+	const [newEmail, setNewEmail] = useState("No email");
+
+	const [newTradeUrl, setNewTradeUrl] = useState("");
+
+	const handleSaveNewEmail = () => {
+		setGlobalLoading(true);
+
+		editProfile({
+			email: newEmail,
+		}).finally(() => setGlobalLoading(false));
+
+		setIsEmailEditing(false);
+	};
+
+	const handleCancelNewEmail = () => {
+		setNewEmail(user?.email || "No email");
+		setIsEmailEditing(false);
+	};
+
+	const handleSaveNewTradeUrl = () => {
+		setGlobalLoading(true);
+
+		editProfile({
+			trade_url: newTradeUrl,
+		}).finally(() => setGlobalLoading(false));
+	};
+
+	useEffect(() => {
+		if (user) {
+			setNewEmail(user.email || "No email");
+			setNewTradeUrl(user.steam_trade_url || "");
+		}
+	}, [user]);
+
+	const fileInputRef = useRef<HTMLInputElement>(null);
+
+	const handleAvatarClick = () => {
+		fileInputRef.current?.click();
+	};
+
+	const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files?.[0];
+		if (!file) return;
+
+		setGlobalLoading(true);
+
+		editProfile({
+			avatar: file,
+		}).finally(() => setGlobalLoading(false));
+	};
 
 	if (user) {
 		return (
 			<div className="max-w-[1240px] px-5 mx-auto py-11 max-md:py-8 flex flex-col gap-3">
 				<div className="flex gap-3 max-md:flex-col">
 					<div className="bg-primary-background rounded-md grow p-6 pr-5 gap-5 flex items-center max-sm:gap-4 max-sm:p-4 max-xs:flex-col">
-						<img
-							className="max-sm:h-20"
-							src="/images/big-user-avatar.png"
-							alt=""
-						/>
+						<div className="relative group">
+							<Image
+								width={96}
+								height={96}
+								className={`
+      block max-sm:h-20 object-cover min-w-[96px] rounded-[8px] 
+      cursor-pointer transition-all duration-300
+      group-hover:opacity-80 group-hover:ring-2 group-hover:ring-primary-500
+    `}
+								src={
+									user?.avatar_url ||
+									"/images/big-user-avatar.png"
+								}
+								alt="User avatar"
+								onClick={handleAvatarClick}
+							/>
 
-						<div className="flex flex-col leading-[20px] font-semibold w-full max-xs:items-center">
-							<span>John Trevor</span>
-
-							<div className="flex items-center gap-2 -mt-0.5">
-								<span className="text-[13px] text-[#b1b7c5]">
-									ostin4444@gmail.com
-								</span>
-
-								<img
-									src="/icons/pen.png"
-									className="cursor-pointer hover:brightness-125"
-									alt=""
-								/>
+							<div
+								className="
+    absolute inset-0 flex items-center justify-center
+    opacity-0 group-hover:opacity-100 transition-opacity duration-300
+    pointer-events-none
+  "
+							>
+								<svg
+									width="24"
+									height="24"
+									viewBox="0 0 24 24"
+									fill="none"
+									xmlns="http://www.w3.org/2000/svg"
+									className="text-white drop-shadow-md"
+								>
+									<path
+										d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z"
+										fill="currentColor"
+									/>
+									<path
+										fillRule="evenodd"
+										clipRule="evenodd"
+										d="M20 12C20 16.4183 16.4183 20 12 20C7.58172 20 4 16.4183 4 12C4 7.58172 7.58172 4 12 4C16.4183 4 20 7.58172 20 12ZM18 12C18 15.3137 15.3137 18 12 18C8.68629 18 6 15.3137 6 12C6 8.68629 8.68629 6 12 6C15.3137 6 18 8.68629 18 12Z"
+										fill="currentColor"
+									/>
+								</svg>
 							</div>
 
-							<div className="max-xs:w-full h-[52px] max-xs:gap-1.5 px-[18px] flex items-center justify-between mt-3 bg-[#11151e] rounded-md border border-primary-border">
-								<div className="flex flex-col max-xs:truncate">
+							<input
+								type="file"
+								ref={fileInputRef}
+								onChange={handleFileChange}
+								accept="image/*"
+								className="hidden"
+							/>
+						</div>
+
+						<div className="flex flex-col leading-[20px] font-semibold w-full max-xs:items-center">
+							<span>{user.username}</span>
+
+							<div className="flex items-center gap-2 -mt-0.5">
+								{isEmailEditing ? (
+									<>
+										<input
+											type="email"
+											className="rounded-md text-[13px] px-2 py-0.5 mt-1.5 border"
+											value={newEmail}
+											onChange={(e) =>
+												setNewEmail(e.target.value)
+											}
+										/>
+										<button
+											className="pt-1 text-green-500 text-[13px] font-medium"
+											onClick={handleSaveNewEmail}
+										>
+											Save
+										</button>
+										<button
+											className="pt-1 text-red-500 text-[13px] font-medium"
+											onClick={handleCancelNewEmail}
+										>
+											Cancel
+										</button>
+									</>
+								) : (
+									<>
+										<span className="text-[13px] text-[#b1b7c5]">
+											{newEmail}
+										</span>
+
+										<img
+											src="/icons/pen.png"
+											className="cursor-pointer hover:brightness-125"
+											alt="Редактировать"
+											onClick={() =>
+												setIsEmailEditing(true)
+											}
+										/>
+									</>
+								)}
+							</div>
+
+							<div className="max-xs:w-full h-[52px] max-xs:gap-1.5 px-[18px] flex items-center justify-between mt-3 bg-[#11151e] rounded-md border border-primary-border gap-2">
+								<div className="flex flex-col max-xs:truncate w-full">
 									<span className="text-[#4a546a] text-[11px] font-bold">
 										Trade URL{" "}
 										<a
-											href="#"
+											target="_blank"
+											href="https://steamcommunity.com/sharedfiles/filedetails/?id=1135133789"
+											rel="noreferrer"
 											className="text-accent-purple hover:brightness-125"
 										>
 											learn ›
 										</a>
 									</span>
 
-									<span className="text-[#b1b7c5] text-[13px] font-semibold -mt-1 max-xs:truncate">
-										https://steamcommunity.com/market/listings
-									</span>
+									<input
+										value={newTradeUrl}
+										onChange={(e) =>
+											setNewTradeUrl(e.target.value)
+										}
+										type="text"
+										className="w-full text-[#b1b7c5] text-[13px] font-semibold -mt-1 max-xs:truncate"
+										placeholder="https://steamcommunity.com/tradeoffer/new/?partner=431495871&token=n-M9g5yh"
+									/>
 								</div>
 
 								<img
-									src="/icons/checkmark.png"
-									className="hover:brightness-125 cursor-pointer max-sm:h-2.5"
+									onClick={handleSaveNewTradeUrl}
+									src={"/icons/checkmark.png"}
+									className={clsx(
+										"hover:brightness-125 cursor-pointer max-sm:h-2.5",
+										((user.steam_trade_url || "") ===
+											newTradeUrl ||
+											!newTradeUrl.startsWith(
+												"https://steamcommunity.com/tradeoffer/new"
+											) ||
+											!(
+												newTradeUrl.includes("token") &&
+												newTradeUrl.includes("partner")
+											)) &&
+											"pointer-events-none brightness-50"
+									)}
 									alt=""
 								/>
 							</div>

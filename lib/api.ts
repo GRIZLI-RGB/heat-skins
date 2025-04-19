@@ -48,6 +48,7 @@ export const editProfile = async ({
 
 	return await api.post("edit", formData, {
 		headers: {
+			"Accept": "application/json",
 			"Content-Type": "multipart/form-data",
 		},
 	});
