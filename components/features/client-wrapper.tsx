@@ -2,15 +2,19 @@
 
 import { OverlayScrollbars } from "overlayscrollbars";
 import { useEffect, useState } from "react";
-import { useAtom } from "jotai";
+import { useAtom, useSetAtom } from "jotai";
+import clsx from "clsx";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import Header from "../ui/header";
 import Footer from "../ui/footer";
-
-import { _disableBodyScroll_ } from "@/lib/store";
 import Modal from "../ui/modal";
 import Input from "../ui/input";
+import Loader from "../ui/loader";
+
+import { _disableBodyScroll_, _globalLoading_, _user_ } from "@/lib/store";
 import CurrencyDropdown from "./currency-dropdown";
+import { getUser } from "@/lib/api";
 
 const Button = ({ text }: { text: string }) => {
 	return (
@@ -25,6 +29,12 @@ export default function ClientWrapper({
 }: {
 	children: React.ReactNode;
 }) {
+	const router = useRouter();
+	const searchParams = useSearchParams();
+
+	const [globalLoading, setGlobalLoading] = useAtom(_globalLoading_);
+	const setUser = useSetAtom(_user_);
+
 	const [disableBodyScroll, setDisableBodyScroll] =
 		useAtom(_disableBodyScroll_);
 
@@ -43,6 +53,29 @@ export default function ClientWrapper({
 	const [isOpenNotEnoughMoneyModal, setIsOpenNotEnoughMoneyModal] =
 		useState(false);
 	const [isOpenEnoughMoneyModal, setIsOpenEnoughMoneyModal] = useState(false);
+
+	useEffect(() => {
+		const token = searchParams.get("token");
+
+		setGlobalLoading(true);
+		if (token) {
+			getUser()
+				.then((res) => {
+					setUser(res.data);
+					localStorage.setItem("token", token);
+				})
+				.catch(() => {
+					setUser(null);
+					localStorage.removeItem("token");
+				})
+				.finally(() => {
+					router.replace("/");
+					setGlobalLoading(false);
+				});
+		} else {
+			setGlobalLoading(false);
+		}
+	}, [searchParams]);
 
 	useEffect(() => {
 		const osInstance = OverlayScrollbars(document.body, {
@@ -87,6 +120,15 @@ export default function ClientWrapper({
 
 	return (
 		<>
+			<Loader
+				className={clsx(
+					"flex-middle w-screen h-screen fixed top-0 left-0 bg-[#11151e] z-[999]",
+					globalLoading
+						? "opacity-100 scale-100 pointer-events-auto"
+						: "opacity-0 scale-95 pointer-events-none"
+				)}
+			/>
+
 			<Header />
 
 			<main className="flex-1">{children}</main>

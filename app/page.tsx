@@ -1,10 +1,11 @@
 "use client";
 
+import clsx from "clsx";
+import { useState } from "react";
+
 import DesiredItemDropdown from "@/components/features/desired-item-dropdown";
 import FilterDropdown from "@/components/features/filter-dropdown";
 import ItemCard from "@/components/features/item-card";
-import clsx from "clsx";
-import { useState } from "react";
 
 const FilterByType = ({ className }: { className?: string }) => {
 	return (
@@ -116,9 +117,7 @@ export default function HomePage() {
 						</button>
 					</div>
 
-					<div
-						className="max-h-[60vh] overflow-y-auto hide-scrollbar pb-4"
-					>
+					<div className="max-h-[60vh] overflow-y-auto hide-scrollbar pb-4">
 						<FilterByType className="grid grid-cols-1 gap-2 !p-0 !border-0" />
 					</div>
 				</div>

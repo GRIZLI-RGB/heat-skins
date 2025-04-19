@@ -6,10 +6,15 @@ import clsx from "clsx";
 import SearchBar from "@components/features/search-bar";
 import Logo from "@components/ui/logo";
 import { RefObject, useEffect, useRef, useState } from "react";
-import { _disableBodyScroll_, _isMobileMenuOpen_ } from "@/lib/store";
+import {
+	_disableBodyScroll_,
+	_globalLoading_,
+	_isMobileMenuOpen_,
+} from "@/lib/store";
 import { useAtom, useSetAtom } from "jotai";
 import { useOnClickOutside } from "usehooks-ts";
 import { AnimatePresence, motion } from "motion/react";
+import { getOauthSteamLink } from "@/lib/api";
 
 const Navigation = ({ className }: { className?: string }) => {
 	const pathname = usePathname();
@@ -49,16 +54,16 @@ const Navigation = ({ className }: { className?: string }) => {
 	);
 };
 
-const SteamAuthButton = ({
-	className,
-	onClick,
-}: {
-	className?: string;
-	onClick?: () => void;
-}) => {
+const SteamAuthButton = ({ className }: { className?: string }) => {
+	const setGlobalLoading = useSetAtom(_globalLoading_);
+
 	return (
 		<button
-			onClick={onClick}
+			onClick={() => {
+				setGlobalLoading(true);
+
+				window.location.href = getOauthSteamLink();
+			}}
 			className={clsx(
 				"flex gap-4 items-center relative h-[54px] px-[18px] rounded-md group overflow-hidden",
 				className
@@ -305,7 +310,7 @@ export default function Header() {
 							<UserBadge />
 						</div>
 					) : (
-						<SteamAuthButton onClick={() => setIsUserAuth(true)} />
+						<SteamAuthButton />
 					)}
 				</div>
 
@@ -346,11 +351,7 @@ export default function Header() {
 
 					<Navigation className="my-5 flex flex-col gap-5" />
 
-					{isUserAuth ? (
-						<UserBadge />
-					) : (
-						<SteamAuthButton onClick={() => setIsUserAuth(true)} />
-					)}
+					{isUserAuth ? <UserBadge /> : <SteamAuthButton />}
 				</div>
 			</div>
 

@@ -1,17 +1,24 @@
+"use client";
+
+import { useEffect, useState } from "react";
+
 import FAQ from "@/components/ui/faq";
+import { FaqItemType } from "@/lib/types";
+import { getFaq } from "@/lib/api";
+import Loader from "@/components/ui/loader";
 
 export default function FaqPage() {
+	const [faqItems, setFaqItems] = useState<FaqItemType[] | "loading">(
+		"loading"
+	);
+
+	useEffect(() => {
+		getFaq().then((res) => setFaqItems(res.data));
+	}, []);
+
 	return (
 		<div className="mt-12 ml-16 mr-5 mb-[84px] max-w-[1140px] max-sm:max-w-full max-sm:w-full max-sm:mx-0 max-sm:mt-10 max-sm:mb-16 max-sm:px-6">
-			<FAQ
-				items={[
-					...new Array(8).fill({
-						question:
-							"Your personal information when  private company limited by shares",
-						answer: "We are In-Game Solutions PTE. LTD, a private company limited by shares, registration number 202435257H, has its registered address and the principal place of Our Privacy Policy meets requirements of the European Union General Data Protection Regulation (GDPR) and Singapore Personal Data Protection Act.<br/><br/>This Privacy Policy explains how We collect, use, share, and protect Your personal information when You use Our Website. By accessing or using Our services,",
-					}),
-				]}
-			/>
+			{faqItems === "loading" ? <Loader size={"sm"} /> : <FAQ items={faqItems} />}
 		</div>
 	);
 }
