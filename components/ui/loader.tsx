@@ -3,12 +3,23 @@ import clsx from "clsx";
 export default function Loader({
 	className,
 	size = "md",
+	id,
+	fullScreen = false,
 }: {
 	className?: string;
 	size?: "sm" | "md" | "lg";
+	id?: string;
+	fullScreen?: boolean;
 }) {
 	return (
-		<div className={className}>
+		<div
+			className={clsx(
+				fullScreen &&
+					"flex-middle w-screen h-screen fixed top-0 left-0 bg-[#11151e] z-[999]",
+				className
+			)}
+			id={id}
+		>
 			<div
 				className={clsx(
 					"border-t-transparent border-accent-purple rounded-full animate-spin",

@@ -2,6 +2,11 @@
 
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { useOnClickOutside } from "usehooks-ts";
+import { AnimatePresence, motion } from "motion/react";
+import Image from "next/image";
+import Link from "next/link";
 
 import SearchBar from "@components/features/search-bar";
 import Logo from "@components/ui/logo";
@@ -10,11 +15,11 @@ import {
 	_disableBodyScroll_,
 	_globalLoading_,
 	_isMobileMenuOpen_,
+	_isOpenReplenishmentModal_,
+	_user_,
 } from "@/lib/store";
-import { useAtom, useSetAtom } from "jotai";
-import { useOnClickOutside } from "usehooks-ts";
-import { AnimatePresence, motion } from "motion/react";
 import { getOauthSteamLink } from "@/lib/api";
+import { UserType } from "@/lib/types";
 
 const Navigation = ({ className }: { className?: string }) => {
 	const pathname = usePathname();
@@ -87,23 +92,43 @@ const SteamAuthButton = ({ className }: { className?: string }) => {
 	);
 };
 
-const UserBadge = ({ className }: { className?: string }) => {
+const UserBadge = ({
+	className,
+	user,
+}: {
+	className?: string;
+	user: UserType;
+}) => {
+	const setIsOpenReplenishmentModal = useSetAtom(_isOpenReplenishmentModal_);
+
 	return (
 		<div className={clsx("flex items-center gap-4", className)}>
-			<img
-				className="rounded-md overflow-hidden"
-				src="/images/user-avatar.png"
-				alt=""
-			/>
+			<Link href="/personal-account/inventory">
+				<Image
+					quality={100}
+					width={44}
+					height={44}
+					className="rounded-md overflow-hidden object-cover"
+					src={user?.avatar_url || "/images/user-avatar.png"}
+					alt=""
+				/>
+			</Link>
 
 			<div className="leading-[16px] flex flex-col">
-				<span className="font-bold">Golden Warrior</span>
+				<span className="font-bold">{user.username}</span>
 				<span className="font-bold text-secondary-text text-[11px]">
-					Balance: <span className="text-accent-purple">$500</span>
+					Balance:{" "}
+					<span className="text-accent-purple">
+						{user.currency_symbol}
+						{user.balance}
+					</span>
 				</span>
 			</div>
 
-			<button className="flex-middle w-7 h-7 rounded-md border-accent-purple border bg-accent-purple/20 hover:bg-accent-purple">
+			<button
+				onClick={() => setIsOpenReplenishmentModal(true)}
+				className="flex-middle w-7 h-7 rounded-md border-accent-purple border bg-accent-purple/20 hover:bg-accent-purple"
+			>
 				<img className="w-2.5" src="/icons/faq-plus.png" alt="" />
 			</button>
 		</div>
@@ -272,7 +297,7 @@ const CartButton = ({ className }: { className?: string }) => {
 export default function Header() {
 	const [isMobileMenuOpen, setIsMobileMenuOpen] = useAtom(_isMobileMenuOpen_);
 
-	const [isUserAuth, setIsUserAuth] = useState(false);
+	const user = useAtomValue(_user_);
 
 	const setDisableBodyScroll = useSetAtom(_disableBodyScroll_);
 
@@ -298,16 +323,16 @@ export default function Header() {
 
 				<Navigation className="h-full mx-7 max-xl:hidden" />
 
-				{isUserAuth && (
+				{user && (
 					<CartButton className="hidden max-xl:flex ml-auto mr-5" />
 				)}
 
 				<div className="max-xl:hidden ml-auto">
-					{isUserAuth ? (
+					{user ? (
 						<div className="flex items-center gap-4">
 							<CartButton />
 
-							<UserBadge />
+							<UserBadge user={user} />
 						</div>
 					) : (
 						<SteamAuthButton />
@@ -351,7 +376,7 @@ export default function Header() {
 
 					<Navigation className="my-5 flex flex-col gap-5" />
 
-					{isUserAuth ? <UserBadge /> : <SteamAuthButton />}
+					{user ? <UserBadge user={user} /> : <SteamAuthButton />}
 				</div>
 			</div>
 

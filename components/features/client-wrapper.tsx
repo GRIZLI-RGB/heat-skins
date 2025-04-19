@@ -3,8 +3,7 @@
 import { OverlayScrollbars } from "overlayscrollbars";
 import { useEffect, useState } from "react";
 import { useAtom, useSetAtom } from "jotai";
-import clsx from "clsx";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import Header from "../ui/header";
 import Footer from "../ui/footer";
@@ -12,13 +11,21 @@ import Modal from "../ui/modal";
 import Input from "../ui/input";
 import Loader from "../ui/loader";
 
-import { _disableBodyScroll_, _globalLoading_, _user_ } from "@/lib/store";
+import {
+	_disableBodyScroll_,
+	_globalLoading_,
+	_isOpenReplenishmentModal_,
+	_user_,
+} from "@/lib/store";
 import CurrencyDropdown from "./currency-dropdown";
 import { getUser } from "@/lib/api";
 
-const Button = ({ text }: { text: string }) => {
+const Button = ({ text, onClick }: { text: string; onClick?: () => void }) => {
 	return (
-		<button className="uppercase font-bold border border-accent-purple rounded-lg bg-accent-purple/20 hover:bg-accent-purple leading-[100%] w-full py-[25px] text-[19px] max-xs:py-5">
+		<button
+			onClick={onClick}
+			className="uppercase font-bold border border-accent-purple rounded-lg bg-accent-purple/20 hover:bg-accent-purple leading-[100%] w-full py-[25px] text-[19px] max-xs:py-5"
+		>
 			{text}
 		</button>
 	);
@@ -31,6 +38,7 @@ export default function ClientWrapper({
 }) {
 	const router = useRouter();
 	const searchParams = useSearchParams();
+	const pathname = usePathname();
 
 	const [globalLoading, setGlobalLoading] = useAtom(_globalLoading_);
 	const setUser = useSetAtom(_user_);
@@ -38,10 +46,19 @@ export default function ClientWrapper({
 	const [disableBodyScroll, setDisableBodyScroll] =
 		useAtom(_disableBodyScroll_);
 
-	const [isOpenModalsModal, setIsOpenModalsModal] = useState(false);
+	const [firstRegistrationData, setFirstRegistrationData] = useState<{
+		tradeUrl: string;
+		email: string;
+	}>({
+		tradeUrl: "",
+		email: "",
+	});
 
-	const [isOpenReplenishmentModal, setIsOpenReplenishmentModal] =
+	const [isOpenFirstRegistrationModal, setIsOpenFirstRegistrationModal] =
 		useState(false);
+	const [isOpenReplenishmentModal, setIsOpenReplenishmentModal] = useAtom(
+		_isOpenReplenishmentModal_
+	);
 	const [isOpenPurchasePaymentModal, setIsOpenPurchasePaymentModal] =
 		useState(false);
 	const [isOpenPurchaseItemsModal, setIsOpenPurchaseItemsModal] =
@@ -55,27 +72,39 @@ export default function ClientWrapper({
 	const [isOpenEnoughMoneyModal, setIsOpenEnoughMoneyModal] = useState(false);
 
 	useEffect(() => {
-		const token = searchParams.get("token");
+		const tokenFromUrl = searchParams.get("token");
+		const savedToken = localStorage.getItem("token");
 
-		setGlobalLoading(true);
-		if (token) {
-			getUser()
-				.then((res) => {
-					setUser(res.data);
-					localStorage.setItem("token", token);
-				})
-				.catch(() => {
-					setUser(null);
-					localStorage.removeItem("token");
-				})
-				.finally(() => {
-					router.replace("/");
-					setGlobalLoading(false);
-				});
-		} else {
-			setGlobalLoading(false);
+		const token = tokenFromUrl || savedToken;
+
+		if (tokenFromUrl) {
+			localStorage.setItem("token", tokenFromUrl);
 		}
-	}, [searchParams]);
+
+		if (!token && pathname.startsWith("/personal-account")) {
+			router.replace("/not-found");
+			return;
+		}
+
+		if (!token) {
+			setGlobalLoading(false);
+			return;
+		}
+
+		getUser()
+			.then((res) => setUser(res.data))
+			.catch(() => {
+				setUser(null);
+				localStorage.removeItem("token");
+				if (pathname.startsWith("/personal-account")) {
+					router.replace("/not-found");
+				}
+			})
+			.finally(() => {
+				if (tokenFromUrl) router.replace("/");
+				setGlobalLoading(false);
+			});
+	}, []);
 
 	useEffect(() => {
 		const osInstance = OverlayScrollbars(document.body, {
@@ -104,8 +133,7 @@ export default function ClientWrapper({
 				isOpenPurchaseItemsModal ||
 				isOpenSuccessfulReplenishmentModal ||
 				isOpenNotEnoughMoneyModal ||
-				isOpenEnoughMoneyModal ||
-				isOpenModalsModal
+				isOpenEnoughMoneyModal
 		);
 	}, [
 		isOpenEnoughMoneyModal,
@@ -115,19 +143,11 @@ export default function ClientWrapper({
 		isOpenReplenishmentModal,
 		isOpenSuccessfulReplenishmentModal,
 		setDisableBodyScroll,
-		isOpenModalsModal,
 	]);
 
 	return (
 		<>
-			<Loader
-				className={clsx(
-					"flex-middle w-screen h-screen fixed top-0 left-0 bg-[#11151e] z-[999]",
-					globalLoading
-						? "opacity-100 scale-100 pointer-events-auto"
-						: "opacity-0 scale-95 pointer-events-none"
-				)}
-			/>
+			{globalLoading && <Loader fullScreen />}
 
 			<Header />
 
@@ -135,56 +155,55 @@ export default function ClientWrapper({
 
 			<Footer />
 
-			<button
-				onClick={() => setIsOpenModalsModal(!isOpenModalsModal)}
-				className="fixed bottom-5 right-5 bg-[#f53361] text-white px-4 py-2 rounded-md leading-[100%] hover:brightness-125"
-			>
-				Модалки
-			</button>
-
 			<Modal
-				open={isOpenModalsModal}
-				onClose={() => setIsOpenModalsModal(false)}
+				open={isOpenFirstRegistrationModal}
+				onClose={() => setIsOpenFirstRegistrationModal(false)}
 			>
-				<div className="flex flex-col p-10 gap-2.5">
-					{[
-						{
-							text: "Replenishment",
-							onClick: () => setIsOpenReplenishmentModal(true),
-						},
-						{
-							text: "Purchase payment",
-							onClick: () => setIsOpenPurchasePaymentModal(true),
-						},
-						{
-							text: "Purchase items",
-							onClick: () => setIsOpenPurchaseItemsModal(true),
-						},
-						{
-							text: "Successful replenishment",
-							onClick: () =>
-								setIsOpenSuccessfulReplenishmentModal(true),
-						},
-						{
-							text: "Not enough money",
-							onClick: () => setIsOpenNotEnoughMoneyModal(true),
-						},
-						{
-							text: "Enough money",
-							onClick: () => setIsOpenEnoughMoneyModal(true),
-						},
-					].map(({ text, onClick }) => (
-						<button
-							className="w-full bg-secondary-background rounded-md h-10 px-8 leading-[100%] font-medium hover:brightness-125"
-							key={text}
-							onClick={() => {
-								setIsOpenModalsModal(false);
-								onClick();
-							}}
-						>
-							{text}
-						</button>
-					))}
+				<div className="p-12 min-w-[450px] text-center max-sm:min-w-0 max-sm:p-5">
+					<h6 className="font-medium text-[22px] uppercase mt-1.5">
+						Enter your trade URL and email
+					</h6>
+
+					<p className="text-secondary-text text-[13px] mt-3 mb-6">
+						To continue, please enter your trade URL and email
+						address
+					</p>
+
+					<div className="flex flex-col gap-4 mb-6">
+						<input
+							type="text"
+							placeholder="Steam Trade URL"
+							value={firstRegistrationData.tradeUrl}
+							onChange={(e) =>
+								setFirstRegistrationData({
+									...firstRegistrationData,
+									tradeUrl: e.target.value,
+								})
+							}
+							className="bg-[#181d2a] text-white px-4 py-3 rounded-md text-sm border border-primary-border placeholder:text-[#888] focus:outline-none"
+						/>
+
+						<input
+							type="email"
+							placeholder="Email"
+							value={firstRegistrationData.email}
+							onChange={(e) =>
+								setFirstRegistrationData({
+									...firstRegistrationData,
+									email: e.target.value,
+								})
+							}
+							className="bg-[#181d2a] text-white px-4 py-3 rounded-md text-sm border border-primary-border placeholder:text-[#888] focus:outline-none"
+						/>
+					</div>
+
+					<Button
+						text="Confirm"
+						onClick={() => {
+							setIsOpenFirstRegistrationModal(false);
+							setGlobalLoading(true);
+						}}
+					/>
 				</div>
 			</Modal>
 

@@ -7,7 +7,7 @@ type BaseEntityType = {
 export type UserType = BaseEntityType & {
 	username: string;
 	email: string;
-	stam_id: string;
+	steam_id: string;
 	steam_trade_url: string;
 	ref_code: string;
 	ref_id: number;
