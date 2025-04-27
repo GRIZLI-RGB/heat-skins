@@ -9,18 +9,24 @@ export default function Input({
 	className,
 	placeholder,
 	onlyText = true,
+	value,
+	onChange,
 }: {
 	type?: "text" | "number";
 	label?: string;
 	className?: string;
 	placeholder?: string;
 	onlyText?: boolean;
+	value?: string;
+	onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }) {
 	const [focused, setFocused] = useState(false);
 
 	if (onlyText) {
 		return (
 			<input
+				value={value}
+				onChange={onChange}
 				placeholder={placeholder}
 				className={clsx(
 					"px-[18px] text-[12px] font-semibold h-10 rounded-md bg-[#11151f] border border-primary-border focus:border-accent-purple placeholder:text-[#656f83]",
@@ -46,6 +52,8 @@ export default function Input({
 				)}
 			>
 				<input
+					value={value}
+					onChange={onChange}
 					onFocus={() => setFocused(true)}
 					onBlur={() => setFocused(false)}
 					className="placeholder:text-white/25 placeholder:font-semibold"

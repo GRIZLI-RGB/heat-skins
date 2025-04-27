@@ -1,4 +1,5 @@
 import axios from "axios";
+import { ApiGetItemsType } from "./types";
 
 const API_URL = "https://api.topskinsmarket.com/api/";
 
@@ -21,7 +22,8 @@ api.interceptors.request.use(
 	}
 );
 
-export const getOauthSteamLink = () => `${API_URL}oauth/steam`;
+export const getOauthSteamLink = (refId?: number | string) =>
+	`${API_URL}oauth/steam${refId ? `?ref=${refId}` : ""}`;
 
 export const editProfile = async ({
 	email,
@@ -86,20 +88,8 @@ export const getItems = async ({
 	float_min,
 	float_max,
 	page,
-}: {
-	types?: string[];
-	phases?: string[];
-	price_min?: number;
-	price_max?: number;
-	wears?: string[];
-	rarities?: string[];
-	stattrack?: boolean;
-	souvenir?: boolean;
-	stickers?: number[];
-	float_min?: number;
-	float_max?: number;
-	page?: number;
-}) =>
+	search,
+}: ApiGetItemsType) =>
 	await api.get("items", {
 		params: {
 			types,
@@ -114,7 +104,56 @@ export const getItems = async ({
 			float_min,
 			float_max,
 			page,
+			search,
 		},
 	});
+
+export const getItemsByIds = async (ids: number[]) => {
+	return await api.get("items/list", {
+		params: {
+			offers: ids,
+		},
+	});
+};
+
+export const getReferrals = async () => await api.get("referrals");
+
+export const getInventory = async () => await api.get("inventory");
+
+export const getTransactions = async () => await api.get("transactions");
+
+export const getPurchases = async () => await api.get("purchase-history");
+
+export const getItem = async (id: number | string) =>
+	await api.get(`items/${id}`);
+
+export const getItemFilters = async () => await api.get("items/filters");
+
+export const buyItem = async (id: number | string) => {
+	return await api.post(`items/${id}/buy`);
+};
+
+export const buyItems = async (ids: number[]) => {
+	return await api.post(`items/buy`, {
+		offers: ids.map((id) => ({
+			id,
+		})),
+	});
+};
+
+export const paymentInit = async ({
+	payment_system,
+	amount,
+}: {
+	payment_system: string;
+	amount: number;
+}) => {
+	return await api.post(`payment/initiate`, {
+		payment_system,
+		amount,
+	});
+};
+
+export const getPaymentSystems = async () => await api.get("payment/systems");
 
 export default api;

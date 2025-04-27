@@ -1,6 +1,57 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useSetAtom } from "jotai";
+
 import Table from "@/components/ui/table";
+import { _globalLoading_ } from "@/lib/store";
+import { getInventory } from "@/lib/api";
+import { ItemType } from "@/lib/types";
+import { formatDate } from "@/lib/utils";
 
 export default function PersonalAccountInventoryPage() {
+	const setGlobalLoading = useSetAtom(_globalLoading_);
+
+	const [inventory, setInventory] = useState<ItemType[]>([]);
+
+	useEffect(() => {
+		setGlobalLoading(true);
+
+		getInventory()
+			.then((res) => setInventory(res.data.data))
+			.finally(() => setGlobalLoading(false));
+	}, []);
+
+	const getTableData = () => {
+		return inventory.map((item) => [
+			<div key="id">{item.id}</div>,
+			<div key="item" className="flex items-center gap-2.5">
+				<img className="w-6" src={item.img} alt="" />
+
+				<span>{item.market_hash_name}</span>
+			</div>,
+			<div key="floath">
+				{item.float || "-"}{" "}
+				{item.wear_short_name && <span>{item.wear_short_name}</span>}
+			</div>,
+			<div key="price" className="text-accent-purple">
+				{item.currency_symbol}
+				{item.price}
+			</div>,
+			<div key="availabillity">
+				{formatDate(item.created_at, "short")}
+			</div>,
+			<div key="status" className="text-[#25f37c]">
+				Ready
+			</div>,
+			<div key="action" className="h-full">
+				<button className="uppercase text-[12px] h-full bg-[#162a2e] text-[#25f37c] font-bold w-[84px] text-center rounded-md hover:brightness-125">
+					Accept
+				</button>
+			</div>,
+		]);
+	};
+
 	return (
 		<Table
 			minWidth="890px"
@@ -37,33 +88,7 @@ export default function PersonalAccountInventoryPage() {
 					align: "right",
 				},
 			]}
-			data={[
-				...new Array(100).fill([
-					<div key="id">67234634</div>,
-					<div key="item" className="flex items-center gap-2.5">
-						<img
-							className="max-h-[22px]"
-							src="/images/knife.png"
-							alt=""
-						/>
-
-						<span>Understoke Knife</span>
-					</div>,
-					<div key="floath">0.987051137 (MW)</div>,
-					<div key="price" className="text-accent-purple">
-						$ 700
-					</div>,
-					<div key="availabillity">23 Feb (13:48)</div>,
-					<div key="status" className="text-[#25f37c]">
-						Ready
-					</div>,
-					<div key="action" className="h-full">
-						<button className="uppercase text-[12px] h-full bg-[#162a2e] text-[#25f37c] font-bold w-[84px] text-center rounded-md hover:brightness-125">
-							Accept
-						</button>
-					</div>,
-				]),
-			]}
+			data={getTableData()}
 		/>
 	);
 }

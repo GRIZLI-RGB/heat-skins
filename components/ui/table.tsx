@@ -1,9 +1,10 @@
 "use client";
 
 import clsx from "clsx";
-import Input from "./input";
 import { useEffect, useRef } from "react";
 import { OverlayScrollbars } from "overlayscrollbars";
+
+import Input from "./input";
 
 export type TableProps = {
 	headers: {
@@ -20,7 +21,9 @@ export type TableProps = {
 	minWidth?: string;
 	disableShadow?: boolean;
 	paddings?: [number, number, number, number];
-	withInputs?: boolean;
+	withSearches?: boolean;
+	searchByTransactionId?: string;
+	setSearchByTransactionId?: (value: string) => void;
 };
 
 export default function Table({
@@ -33,7 +36,9 @@ export default function Table({
 	minWidth,
 	disableShadow = false,
 	paddings = [0, 18, 0, 18],
-	withInputs = false,
+	withSearches = false,
+	searchByTransactionId = "",
+	setSearchByTransactionId = () => {},
 }: TableProps) {
 	const tableRef = useRef(null);
 
@@ -53,24 +58,35 @@ export default function Table({
 				className
 			)}
 		>
-			{withInputs && (
+			{withSearches && data.length > 0 && (
 				<>
 					<div className="flex gap-4">
 						<Input
+							value={searchByTransactionId}
+							onChange={(e) =>
+								setSearchByTransactionId(e.target.value)
+							}
 							placeholder="Transaction ID"
 							className="!max-w-[214px]"
 						/>
-						<Input
+						{/* <Input
+							value={searchByItemName}
+							onChange={(e) =>
+								setSearchByItemName(e.target.value)
+							}
 							placeholder="Item name"
 							className="!max-w-[214px]"
-						/>
+						/> */}
 					</div>
 
 					<div className="h-px w-[150%] relative -left-[10%] bg-[#11151e] my-6" />
 				</>
 			)}
 
-			<div className="max-w-full overflow-x-auto custom-scrollbar relative" ref={tableRef}>
+			<div
+				className="max-w-full overflow-x-auto custom-scrollbar relative"
+				ref={tableRef}
+			>
 				<div
 					style={{
 						minWidth,
@@ -102,38 +118,50 @@ export default function Table({
 						maxHeight,
 					}}
 				>
-					{data.map((row, index) => (
+					{data.length > 0 &&
+						data.map((row, index) => (
+							<div
+								className={clsx(
+									"rounded-md flex items-center w-full bg-[#151b28] h-10 min-h-10 hover:brightness-125",
+									cns?.row
+								)}
+								key={index}
+								style={{
+									padding: `${paddings[0]}px ${paddings[1]}px ${paddings[2]}px ${paddings[3]}px`,
+								}}
+							>
+								{row.map((cell, index) => (
+									<div
+										className="flex items-center h-full font-bold text-[12px]"
+										style={{
+											width: widths
+												? widths[index]
+												: `${100 / row.length}%`,
+											justifyContent:
+												headers[index]?.align ||
+												"center",
+										}}
+										key={index}
+									>
+										{cell}
+									</div>
+								))}
+							</div>
+						))}
+
+					{!(data.length > 0) && (
 						<div
-							className={clsx(
-								"rounded-md flex items-center w-full bg-[#151b28] h-10 min-h-10 hover:brightness-125",
-								cns?.row
-							)}
-							key={index}
-							style={{
-								padding: `${paddings[0]}px ${paddings[1]}px ${paddings[2]}px ${paddings[3]}px`,
-							}}
+							className={
+								"flex-middle text-center font-semibold py-10"
+							}
 						>
-							{row.map((cell, index) => (
-								<div
-									className="flex items-center h-full font-bold text-[12px]"
-									style={{
-										width: widths
-											? widths[index]
-											: `${100 / row.length}%`,
-										justifyContent:
-											headers[index]?.align || "center",
-									}}
-									key={index}
-								>
-									{cell}
-								</div>
-							))}
+							No data
 						</div>
-					))}
+					)}
 				</div>
 			</div>
 
-			{!disableShadow && (
+			{!disableShadow && data.length > 5 && (
 				<img
 					className="absolute left-0 right-0 bottom-0 w-full pointer-events-none"
 					src="/images/decorations/table-shadow.png"

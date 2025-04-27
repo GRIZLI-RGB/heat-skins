@@ -1,26 +1,50 @@
 "use client";
 
-import { ItemType } from "@/lib/types";
 import clsx from "clsx";
 import { useState } from "react";
+import { useAtom, useAtomValue } from "jotai";
+
+import { ItemType } from "@/lib/types";
+import { _cartItemsIds_, _user_ } from "@/lib/store";
 
 export default function ItemCard({ item }: { item: ItemType }) {
 	const [hovered, setHovered] = useState(false);
 
+	const [cartItemsIds, setCartItemsIds] = useAtom(_cartItemsIds_);
+	const isInCart = cartItemsIds.includes(item.id);
+
+	const toggleCart = () => {
+		const updatedCart = isInCart
+			? cartItemsIds.filter((id) => id !== item.id)
+			: [...cartItemsIds, item.id];
+
+		setCartItemsIds(updatedCart);
+	};
+
+	const user = useAtomValue(_user_);
+
 	return (
 		<div
+			onClick={() => (window.location.href = `/item/${item.id}`)}
 			className={clsx(
-				"relative bg-primary-background p-[14px] w-[168px]",
+				"cursor-pointer relative bg-primary-background p-[14px] w-[168px]",
 				hovered ? "rounded-t-md" : "rounded-md"
 			)}
 			onMouseEnter={() => setHovered(true)}
 			onMouseLeave={() => setHovered(false)}
 		>
-			<div className="absolute flex flex-col top-3 right-2.5 gap-2.5">
-				<img src="/images/collections/1.png" alt="" />
-				<img src="/images/collections/2.png" alt="" />
-				<img src="/images/collections/3.png" alt="" />
-			</div>
+			{item.stickers.length > 0 && (
+				<div className="absolute flex flex-col top-3 right-2.5 gap-2.5">
+					{item.stickers.map((sticker) => (
+						<img
+							className="h-5"
+							key={sticker.id}
+							src={sticker.img}
+							alt={sticker.name}
+						/>
+					))}
+				</div>
+			)}
 
 			<span className="text-[15px] font-semibold">
 				{item.currency_symbol}
@@ -58,18 +82,25 @@ export default function ItemCard({ item }: { item: ItemType }) {
 				src="/images/decorations/item-card-hovered-shadow.png"
 			/>
 
-			<button
-				className={clsx(
-					"hover:brightness-125 absolute bottom-0 left-0 right-0 z-[2] h-[42px] rounded-b-md translate-y-full flex items-center justify-center gap-1.5 bg-[#121c21] border border-[#154030]",
-					hovered ? "opacity-100" : "opacity-0 pointer-events-none"
-				)}
-			>
-				<img src="/icons/add.png" alt="" />
-
-				<span className="uppercase font-semibold text-[12px]">
-					Add to cart
-				</span>
-			</button>
+			{user && (
+				<button
+					onClick={(e) => {
+						e.stopPropagation();
+						toggleCart();
+					}}
+					className={clsx(
+						"hover:brightness-125 absolute bottom-0 left-0 right-0 z-[2] h-[42px] rounded-b-md translate-y-full flex items-center justify-center gap-1.5 bg-[#121c21] border border-[#154030]",
+						hovered
+							? "opacity-100"
+							: "opacity-0 pointer-events-none"
+					)}
+				>
+					{!isInCart && <img src={`/icons/add.png`} alt="" />}
+					<span className="uppercase font-semibold text-[12px]">
+						{isInCart ? "Remove from cart" : "Add to cart"}
+					</span>
+				</button>
+			)}
 		</div>
 	);
 }

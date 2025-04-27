@@ -1,10 +1,14 @@
 "use client";
 
+import { _searchQuery_ } from "@/lib/store";
 import clsx from "clsx";
+import { useAtom } from "jotai";
 import { useState } from "react";
 
 export default function SearchBar({ className }: { className?: string }) {
 	const [focused, setFocused] = useState(false);
+
+	const [searchQuery, setSearchQuery] = useAtom(_searchQuery_);
 
 	return (
 		<div
@@ -15,6 +19,8 @@ export default function SearchBar({ className }: { className?: string }) {
 			)}
 		>
 			<input
+				value={searchQuery}
+				onChange={(e) => setSearchQuery(e.target.value)}
 				onBlur={() => setFocused(false)}
 				onFocus={() => setFocused(true)}
 				placeholder="CS2 Skin Search"

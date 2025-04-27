@@ -8,9 +8,10 @@ const nextConfig: NextConfig = {
 			},
 			{
 				hostname: "api.topskinsmarket.com",
-			}
+			},
 		],
 	},
+	reactStrictMode: false,
 };
 
 export default nextConfig;

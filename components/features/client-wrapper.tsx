@@ -2,7 +2,7 @@
 
 import { OverlayScrollbars } from "overlayscrollbars";
 import { useEffect, useState } from "react";
-import { useAtom, useSetAtom } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import Header from "../ui/header";
@@ -18,7 +18,8 @@ import {
 	_user_,
 } from "@/lib/store";
 import CurrencyDropdown from "./currency-dropdown";
-import { getUser } from "@/lib/api";
+import { getOauthSteamLink, getPaymentSystems, getUser } from "@/lib/api";
+import { PaymentSystemType } from "@/lib/types";
 
 const Button = ({ text, onClick }: { text: string; onClick?: () => void }) => {
 	return (
@@ -40,38 +41,49 @@ export default function ClientWrapper({
 	const searchParams = useSearchParams();
 	const pathname = usePathname();
 
-	const [globalLoading, setGlobalLoading] = useAtom(_globalLoading_);
+	const globalLoading = useAtomValue(_globalLoading_);
 	const setUser = useSetAtom(_user_);
 
 	const [disableBodyScroll, setDisableBodyScroll] =
 		useAtom(_disableBodyScroll_);
 
-	const [firstRegistrationData, setFirstRegistrationData] = useState<{
-		tradeUrl: string;
-		email: string;
-	}>({
-		tradeUrl: "",
-		email: "",
-	});
+	// const [firstRegistrationData, setFirstRegistrationData] = useState<{
+	// 	tradeUrl: string;
+	// 	email: string;
+	// }>({
+	// 	tradeUrl: "",
+	// 	email: "",
+	// });
 
-	const [isOpenFirstRegistrationModal, setIsOpenFirstRegistrationModal] =
-		useState(false);
-	const [isOpenReplenishmentModal, setIsOpenReplenishmentModal] = useAtom(
-		_isOpenReplenishmentModal_
-	);
+	// const [isOpenFirstRegistrationModal, setIsOpenFirstRegistrationModal] =
+	// 	useState(false);
+
 	const [isOpenPurchasePaymentModal, setIsOpenPurchasePaymentModal] =
 		useState(false);
+
 	const [isOpenPurchaseItemsModal, setIsOpenPurchaseItemsModal] =
 		useState(false);
+
 	const [
 		isOpenSuccessfulReplenishmentModal,
 		setIsOpenSuccessfulReplenishmentModal,
 	] = useState(false);
+
 	const [isOpenNotEnoughMoneyModal, setIsOpenNotEnoughMoneyModal] =
 		useState(false);
+
 	const [isOpenEnoughMoneyModal, setIsOpenEnoughMoneyModal] = useState(false);
 
+	const [isOpenReplenishmentModal, setIsOpenReplenishmentModal] = useAtom(
+		_isOpenReplenishmentModal_
+	);
+
+	const [paymentSystems, setPaymentSystems] = useState<PaymentSystemType[]>(
+		[]
+	);
+
 	useEffect(() => {
+		const refId = searchParams.get("ref");
 		const tokenFromUrl = searchParams.get("token");
 		const savedToken = localStorage.getItem("token");
 
@@ -87,23 +99,27 @@ export default function ClientWrapper({
 		}
 
 		if (!token) {
-			setGlobalLoading(false);
-			return;
+			if (refId) {
+				window.location.href = getOauthSteamLink(refId);
+			} else {
+				return;
+			}
 		}
 
-		getUser()
-			.then((res) => setUser(res.data))
-			.catch(() => {
-				setUser(null);
-				localStorage.removeItem("token");
-				if (pathname.startsWith("/personal-account")) {
-					router.replace("/not-found");
-				}
-			})
-			.finally(() => {
-				if (tokenFromUrl) router.replace("/");
-				setGlobalLoading(false);
-			});
+		if (!refId) {
+			getUser()
+				.then((res) => setUser(res.data))
+				.catch(() => {
+					setUser(null);
+					localStorage.removeItem("token");
+					if (pathname.startsWith("/personal-account")) {
+						router.replace("/not-found");
+					}
+				})
+				.finally(() => {
+					if (tokenFromUrl) router.replace("/");
+				});
+		}
 	}, []);
 
 	useEffect(() => {
@@ -115,6 +131,10 @@ export default function ClientWrapper({
 		return () => {
 			osInstance?.destroy();
 		};
+	}, []);
+
+	useEffect(() => {
+		getPaymentSystems().then((res) => setPaymentSystems(res.data));
 	}, []);
 
 	useEffect(() => {
@@ -155,7 +175,7 @@ export default function ClientWrapper({
 
 			<Footer />
 
-			<Modal
+			{/* <Modal
 				open={isOpenFirstRegistrationModal}
 				onClose={() => setIsOpenFirstRegistrationModal(false)}
 			>
@@ -205,7 +225,7 @@ export default function ClientWrapper({
 						}}
 					/>
 				</div>
-			</Modal>
+			</Modal> */}
 
 			<Modal
 				open={isOpenReplenishmentModal}
@@ -220,14 +240,18 @@ export default function ClientWrapper({
 					<CurrencyDropdown />
 
 					<div className="grid grid-cols-3 gap-[15px] mt-8 mb-9 max-xs:gap-3 max-xs:grid-cols-2 max-xs:my-5">
-						{[...new Array(9)].map((_, index) => (
-							<button
-								className="max-xs:p-6 flex-middle bg-[#181d2a] hover:brightness-125 rounded-md h-[100px]"
-								key={index}
-							>
-								<img src="/images/stripe.png" alt="" />
-							</button>
-						))}
+						{paymentSystems.length > 0 &&
+							paymentSystems.map((paymentSystem) => (
+								<button
+									className="max-xs:p-6 flex-middle bg-[#181d2a] hover:brightness-125 rounded-md h-[100px]"
+									key={paymentSystem.id}
+								>
+									<img
+										src={paymentSystem.img}
+										alt={paymentSystem.name}
+									/>
+								</button>
+							))}
 					</div>
 
 					<div className="max-xs:flex-col max-xs:gap-2 flex items-start gap-5">

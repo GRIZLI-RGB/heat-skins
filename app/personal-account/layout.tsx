@@ -81,6 +81,16 @@ export default function PersonalAccountLayout({
 		}
 	};
 
+	const [copied, setCopied] = useState(false);
+
+	const handleCopy = () => {
+		navigator.clipboard.writeText(
+			`https://topskinsmarket.com?ref=${user?.id}`
+		);
+		setCopied(true);
+		setTimeout(() => setCopied(false), 2000);
+	};
+
 	if (user) {
 		return (
 			<div className="max-w-[1240px] px-5 mx-auto py-11 max-md:py-8 flex flex-col gap-3">
@@ -308,15 +318,43 @@ export default function PersonalAccountLayout({
 								Referral link
 							</h6>
 
+							<div className="mt-4">
+								<label
+									htmlFor="referral-link"
+									className="text-[13px] font-semibold mb-1 block text-[#b1b7c5]"
+								>
+									Your link
+								</label>
+								<div className="flex flex-col gap-2 max-md:flex-row">
+									<input
+										id="referral-link"
+										type="text"
+										readOnly
+										value={`https://topskinsmarket.com?ref=${user.id}`}
+										className="bg-[#171c29] text-sm text-white px-3 py-2 rounded-md w-full outline-none"
+									/>
+									<button
+										onClick={handleCopy}
+										className={`px-4 py-2 rounded-md text-sm font-semibold transition-all duration-300 ${
+											copied
+												? "bg-green-600 text-white"
+												: "bg-accent-purple hover:brightness-125"
+										}`}
+									>
+										{copied ? "Copied!" : "Copy"}
+									</button>
+								</div>
+							</div>
+
 							<div className="mt-4 mb-5 flex gap-1.5">
 								{[
 									{
 										label: "Percent",
-										value: "73%",
+										value: `${user.ref_percent}%`,
 									},
 									{
 										label: "Referrals",
-										value: "560",
+										value: user.ref_count,
 									},
 								].map(({ label, value }) => (
 									<div
@@ -339,7 +377,7 @@ export default function PersonalAccountLayout({
 									You{"'"}ve earned it
 								</span>
 								<span className="text-accent-purple text-[17px]">
-									$ 900
+									{user.currency_symbol} {user.ref_balance}
 								</span>
 							</div>
 

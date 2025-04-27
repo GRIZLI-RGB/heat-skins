@@ -11,14 +11,17 @@ import SearchBar from "@components/features/search-bar";
 import Logo from "@components/ui/logo";
 import { RefObject, useEffect, useRef, useState } from "react";
 import {
+	_cartItemsIds_,
 	_disableBodyScroll_,
 	_globalLoading_,
 	_isMobileMenuOpen_,
 	_isOpenReplenishmentModal_,
 	_user_,
 } from "@/lib/store";
-import { getOauthSteamLink } from "@/lib/api";
-import { UserType } from "@/lib/types";
+import { getItemsByIds, getOauthSteamLink } from "@/lib/api";
+import { ItemType, UserType } from "@/lib/types";
+import { RxExit } from "react-icons/rx";
+import Loader from "./loader";
 
 const Navigation = ({ className }: { className?: string }) => {
 	const pathname = usePathname();
@@ -102,13 +105,14 @@ const UserBadge = ({
 
 	const setIsOpenReplenishmentModal = useSetAtom(_isOpenReplenishmentModal_);
 	const setIsMobileMenuOpen = useSetAtom(_isMobileMenuOpen_);
+	const setGlobalLoading = useSetAtom(_globalLoading_);
 
 	return (
-		<div className={clsx("flex items-center gap-4", className)}>
+		<div className={clsx("flex items-center gap-3.5", className)}>
 			<Image
 				onClick={() => {
-					setIsMobileMenuOpen(false);
 					router.push("/personal-account/inventory");
+					setIsMobileMenuOpen(false);
 				}}
 				quality={100}
 				width={44}
@@ -134,6 +138,17 @@ const UserBadge = ({
 				className="flex-middle w-7 h-7 rounded-md border-accent-purple border bg-accent-purple/20 hover:bg-accent-purple"
 			>
 				<img className="w-2.5" src="/icons/faq-plus.png" alt="" />
+			</button>
+
+			<button
+				onClick={() => {
+					setGlobalLoading(true);
+					localStorage.removeItem("token");
+					window.location.href = "/";
+				}}
+				className="-ml-1 flex-middle w-7 h-7 rounded-md border-accent-purple border bg-accent-purple/20 hover:bg-accent-purple"
+			>
+				<RxExit />
 			</button>
 		</div>
 	);
@@ -170,6 +185,26 @@ const CartButton = ({ className }: { className?: string }) => {
 		return () => window.removeEventListener("scroll", handleScroll);
 	}, [isOpenCart]);
 
+	const [cartItemsIds, setCartItemsIds] = useAtom(_cartItemsIds_);
+
+	const [cartItems, setCartItems] = useState<ItemType[] | "loading">(
+		"loading"
+	);
+
+	const user = useAtomValue(_user_);
+
+	useEffect(() => {
+		if (isOpenCart) {
+			getItemsByIds(cartItemsIds).then(({ data }) =>
+				setCartItems(data.offers)
+			);
+		}
+	}, [cartItemsIds, isOpenCart]);
+
+	const handleRemoveItemFromCart = (id: number) => {
+		setCartItemsIds(cartItemsIds.filter((item) => item !== id));
+	};
+
 	return (
 		<div className={clsx("relative", className)} ref={cartRef}>
 			<button
@@ -177,17 +212,21 @@ const CartButton = ({ className }: { className?: string }) => {
 					setIsMobileMenuOpen(false);
 					setIsOpenCart(!isOpenCart);
 				}}
-				className="flex gap-4 items-center rounded-md bg-secondary-background px-4 py-[13px] hover:brightness-125 max-xs:gap-3 max-xs:px-3.5 max-xs:py-2.5"
+				className={clsx(
+					"flex gap-4 items-center rounded-md bg-secondary-background px-4 py-[13px] hover:brightness-125 max-xs:gap-3 max-xs:px-3.5 max-xs:py-2.5"
+				)}
 			>
 				<img src="/icons/cart.png" alt="" />
 
 				<span className="font-semibold max-xs:hidden">
 					BASKET{" "}
-					<span className="text-accent-purple font-bold">(50)</span>
+					<span className="text-accent-purple font-bold">
+						({cartItemsIds.length})
+					</span>
 				</span>
 
 				<span className="font-bold text-accent-purple hidden max-xs:block">
-					50
+					{cartItemsIds.length}
 				</span>
 			</button>
 
@@ -201,89 +240,153 @@ const CartButton = ({ className }: { className?: string }) => {
 						className="overflow-hidden absolute top-full mt-2 py-[18px] w-[690px] right-0 max-sm:-right-[52px] max-sm:w-[340px] bg-secondary-background rounded-md pl-5 pr-7 z-50 max-sm:px-5 max-sm:py-4"
 					>
 						<div className="raise-up flex gap-7 items-start overflow-hidden max-sm:flex-col-reverse max-sm:gap-4">
-							<div className="flex flex-col gap-2.5 w-full h-[266px] overflow-y-auto hide-scrollbar max-sm:gap-2">
-								{[...new Array(30)].map((_, index) => (
-									<div
-										key={index}
-										className="bg-[#1d2433] flex items-center gap-6 pl-5 pr-[30px] rounded-md min-h-[82px] max-sm:pl-4 max-sm:pr-4"
-									>
-										<img
-											className="shrink-0 max-sm:w-12"
-											src="/images/knife.png"
-											alt=""
-										/>
-
-										<div className="leading-[16px] flex flex-col items-start">
-											<span className="font-bold max-sm:text-[13px]">
-												Jacker Stone | Londer Brow
-											</span>
-
-											<span className="text-secondary-text text-[11px] font-medium max-sm:text-[10px]">
-												MW • 0.65498704
-											</span>
-
-											<span className="text-accent-purple text-[15px] font-bold mt-1 max-sm:text-[14px] max-sm:mt-0.5">
-												$900
-											</span>
-										</div>
-
-										<button className="ml-auto bg-secondary-background rounded-md flex-middle w-7 h-7 hover:brightness-125 shrink-0">
-											<img src="/icons/x.png" alt="" />
-										</button>
-									</div>
-								))}
-							</div>
-
-							<div className="w-[198px] shrink-0 flex flex-col gap-5 max-sm:w-full max-sm:gap-3.5">
-								<h6 className="uppercase text-[16px] font-bold">
-									Total
-								</h6>
-
-								<div className="flex gap-[3px] flex-col">
-									{[...new Array(2)].map((_, index) => (
-										<div
-											key={index}
-											className="rounded-md text-[13px] pl-5 pr-4 font-bold flex items-center justify-between h-10 w-full bg-primary-background"
-										>
-											<span>
-												{index === 0
-													? "Items"
-													: "Total amount"}
-											</span>
-
-											<span
-												className={clsx(
-													index !== 0 &&
-														"text-accent-purple"
-												)}
-											>
-												{index === 0 ? 50 : "$1.390"}
-											</span>
-										</div>
-									))}
+							{cartItems === "loading" ? (
+								<div className="flex-middle w-full py-10">
+									<Loader size="sm" />
 								</div>
+							) : (
+								<>
+									{cartItemsIds.length > 0 ? (
+										<>
+											<div className="flex flex-col gap-2.5 w-full h-[266px] overflow-y-auto hide-scrollbar max-sm:gap-2">
+												{cartItems.map((cartItem) => (
+													<div
+														key={cartItem.id}
+														className="bg-[#1d2433] flex items-center gap-6 pl-5 pr-[30px] rounded-md min-h-[82px] max-sm:pl-4 max-sm:pr-4"
+													>
+														<img
+															className="max-w-[60px] shrink-0 max-sm:w-12"
+															src={
+																cartItem.img ||
+																"/images/gradient-knife.png"
+															}
+															alt=""
+														/>
 
-								<p className="text-[11px] leading-[15px] text-secondary-text">
-									By buying skins, I agree with the{" "}
-									<a
-										href="#"
-										target="_blank"
-										className="text-primary-link hover:brightness-125"
-									>
-										policy of confidentiality
-									</a>
-								</p>
+														<div className="leading-[16px] flex flex-col items-start">
+															<span className="font-bold max-sm:text-[13px]">
+																{
+																	cartItem.market_hash_name
+																}
+															</span>
 
-								<button className="uppercase w-full font-bold text-[18px] py-4 leading-[16px] rounded-md border-accent-purple border bg-accent-purple/20 hover:bg-accent-purple">
-									Buy
-								</button>
+															{cartItem.wear_short_name && (
+																<span className="text-secondary-text text-[11px] font-medium max-sm:text-[10px]">
+																	{
+																		cartItem.wear_short_name
+																	}{" "}
+																	•{" "}
+																	{cartItem.float ||
+																		"-"}
+																</span>
+															)}
 
-								<div className="-mt-1 flex-middle">
-									<button className="text-[#576176] text-[11px] leading-[15px] font-bold hover:brightness-125">
-										Empty the shopping cart
-									</button>
-								</div>
-							</div>
+															<span className="text-accent-purple text-[15px] font-bold mt-1 max-sm:text-[14px] max-sm:mt-0.5">
+																{
+																	cartItem.currency_symbol
+																}
+																{cartItem.price}
+															</span>
+														</div>
+
+														<button
+															onClick={() =>
+																handleRemoveItemFromCart(
+																	cartItem.id
+																)
+															}
+															className="ml-auto bg-secondary-background rounded-md flex-middle w-7 h-7 hover:brightness-125 shrink-0"
+														>
+															<img
+																src="/icons/x.png"
+																alt=""
+															/>
+														</button>
+													</div>
+												))}
+											</div>
+
+											<div className="w-[198px] shrink-0 flex flex-col gap-5 max-sm:w-full max-sm:gap-3.5">
+												<h6 className="uppercase text-[16px] font-bold">
+													Total
+												</h6>
+
+												<div className="flex gap-[3px] flex-col">
+													{[...new Array(2)].map(
+														(_, index) => (
+															<div
+																key={index}
+																className="rounded-md text-[13px] pl-5 pr-4 font-bold flex items-center justify-between h-10 w-full bg-primary-background"
+															>
+																<span>
+																	{index === 0
+																		? "Items"
+																		: "Total amount"}
+																</span>
+
+																<span
+																	className={clsx(
+																		index !==
+																			0 &&
+																			"text-accent-purple"
+																	)}
+																>
+																	{index === 0
+																		? cartItemsIds.length
+																		: `${
+																				user?.currency_symbol ||
+																				"$"
+																		  }${cartItems.reduce(
+																				(
+																					acc,
+																					item
+																				) =>
+																					acc +
+																					+item.price,
+																				0
+																		  )}`}
+																</span>
+															</div>
+														)
+													)}
+												</div>
+
+												<p className="text-[11px] leading-[15px] text-secondary-text">
+													By buying skins, I agree
+													with the{" "}
+													<a
+														href="#"
+														target="_blank"
+														className="text-primary-link hover:brightness-125"
+													>
+														policy of
+														confidentiality
+													</a>
+												</p>
+
+												<button className="uppercase w-full font-bold text-[18px] py-4 leading-[16px] rounded-md border-accent-purple border bg-accent-purple/20 hover:bg-accent-purple">
+													Buy
+												</button>
+
+												<div className="-mt-1 flex-middle">
+													<button
+														onClick={() =>
+															setCartItemsIds([])
+														}
+														className="text-[#576176] text-[11px] leading-[15px] font-bold hover:brightness-125"
+													>
+														Empty the shopping cart
+													</button>
+												</div>
+											</div>
+										</>
+									) : (
+										<div className="font-semibold flex-middle py-5 text-center mx-auto">
+											Cart is empty
+										</div>
+									)}
+								</>
+							)}
 						</div>
 
 						<img

@@ -38,15 +38,97 @@ export type BlogArticleType = {
 	updated_at: Date;
 };
 
+export type ReferralUserType = BaseEntityType & {
+	role_id: number;
+	username: string;
+	email: string | null;
+	balance: string;
+	ref_balance: string;
+	steam_trade_url: string | null;
+	steam_id: string;
+	ref_code: string;
+	ref_id: number;
+	settings: unknown[];
+	avatar_url: string;
+	ref_count: number;
+	ref_percent: number;
+	currency_symbol: string;
+};
+
+export type PurchaseType = BaseEntityType & {
+	user_id: number;
+	offer: {
+		id: number;
+		market_hash_name: string;
+		price: number;
+		float: number;
+		type: string;
+		phase: string;
+		stattrack: boolean;
+		souvenir: boolean;
+		rarity: string;
+		img: string;
+	};
+	purchase: {
+		success: boolean;
+		refunded: boolean;
+		refund_time: Date;
+	};
+	status:
+		| "preparing"
+		| "waiting_acceptance"
+		| "cancelled"
+		| "not_accepted"
+		| "error"
+		| "completed";
+	status_name: string;
+	trade_id: string;
+	rejection_count: number;
+	last_status_check: Date;
+};
+
+export type TransactionType = BaseEntityType & {
+	sum: number;
+	payment_system: "unityfinance";
+	payment_system_name: string;
+	status: "pending" | "inProgress" | "success" | "failed";
+	status_name: string;
+	payment_id: string;
+	payment_url: string;
+	payment_data: string;
+	error: string;
+};
+
+export type ApiGetItemsType = {
+	types?: string[];
+	phases?: string[];
+	price_min?: number;
+	price_max?: number;
+	wears?: string[];
+	rarities?: string[];
+	stattrack?: boolean;
+	souvenir?: boolean;
+	stickers?: number[];
+	float_min?: number;
+	float_max?: number;
+	page?: number;
+	search?: string;
+};
+
+export type PaymentSystemType = {
+	id: number;
+	name: string;
+	img: string;
+};
+
 // TODO
 // type, phase и т.п. = по сути константы, получаемые с бэка,
 // нужно придумать, как лучше их хранить типами
-export type ItemType = {
-	id: number;
+export type ItemType = BaseEntityType & {
 	market_hash_name: string;
 	type: string;
 	phase: string;
-	price: number;
+	price: string;
 	float: number;
 	rarity: string;
 	stattrack: boolean;
@@ -55,7 +137,7 @@ export type ItemType = {
 	instanceid: string;
 	real_instanceid: string;
 	asset: string;
-	old_price: number;
+	old_price: string;
 	stamp: Date;
 	base_id: string;
 	paintseed: string;
