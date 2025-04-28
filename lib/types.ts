@@ -121,6 +121,13 @@ export type PaymentSystemType = {
 	img: string;
 };
 
+export type CurrencyType = {
+	id: number;
+	name: string;
+	img: string;
+	symbol: string;
+};
+
 // TODO
 // type, phase и т.п. = по сути константы, получаемые с бэка,
 // нужно придумать, как лучше их хранить типами

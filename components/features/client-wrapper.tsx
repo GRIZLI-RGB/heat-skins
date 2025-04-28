@@ -17,9 +17,14 @@ import {
 	_isOpenReplenishmentModal_,
 	_user_,
 } from "@/lib/store";
-import CurrencyDropdown from "./currency-dropdown";
-import { getOauthSteamLink, getPaymentSystems, getUser } from "@/lib/api";
+import {
+	getOauthSteamLink,
+	getPaymentSystems,
+	getUser,
+	paymentInit,
+} from "@/lib/api";
 import { PaymentSystemType } from "@/lib/types";
+import clsx from "clsx";
 
 const Button = ({ text, onClick }: { text: string; onClick?: () => void }) => {
 	return (
@@ -47,17 +52,6 @@ export default function ClientWrapper({
 	const [disableBodyScroll, setDisableBodyScroll] =
 		useAtom(_disableBodyScroll_);
 
-	// const [firstRegistrationData, setFirstRegistrationData] = useState<{
-	// 	tradeUrl: string;
-	// 	email: string;
-	// }>({
-	// 	tradeUrl: "",
-	// 	email: "",
-	// });
-
-	// const [isOpenFirstRegistrationModal, setIsOpenFirstRegistrationModal] =
-	// 	useState(false);
-
 	const [isOpenPurchasePaymentModal, setIsOpenPurchasePaymentModal] =
 		useState(false);
 
@@ -81,6 +75,21 @@ export default function ClientWrapper({
 	const [paymentSystems, setPaymentSystems] = useState<PaymentSystemType[]>(
 		[]
 	);
+	// const [currencies, setCurrencies] = useState<{
+	// 	currencies: CurrencyType[];
+	// 	current_id: number;
+	// 	current_name: string;
+	// 	current_symbol: string;
+	// 	current_img: string;
+	// }>();
+	const [paymentData, setPaymentData] = useState<{
+		payment_system: number;
+		amount: string;
+	}>({
+		payment_system: 1,
+		amount: "10",
+	});
+	const [paymentUrl, setPaymentUrl] = useState<string | "error" | null>(null);
 
 	useEffect(() => {
 		const refId = searchParams.get("ref");
@@ -135,6 +144,7 @@ export default function ClientWrapper({
 
 	useEffect(() => {
 		getPaymentSystems().then((res) => setPaymentSystems(res.data));
+		// getCurrencies().then((res) => setCurrencies(res.data));
 	}, []);
 
 	useEffect(() => {
@@ -165,6 +175,35 @@ export default function ClientWrapper({
 		setDisableBodyScroll,
 	]);
 
+	const [localLoading, setLocalLoading] = useState(false);
+
+	const handleProceedToPayment = () => {
+		setLocalLoading(true);
+
+		paymentInit({
+			payment_system: paymentData.payment_system,
+			amount: parseFloat(paymentData.amount),
+		})
+			.then((res) => {
+				const resData: {
+					success: boolean;
+					transaction_id: number;
+					payment_url: string;
+				} = res.data;
+
+				if (resData.success) {
+					setPaymentUrl(resData.payment_url);
+				} else {
+					setPaymentUrl("error");
+				}
+			})
+			.finally(() => {
+				setIsOpenReplenishmentModal(false);
+				setIsOpenPurchasePaymentModal(true);
+				setLocalLoading(false);
+			});
+	};
+
 	return (
 		<>
 			{globalLoading && <Loader fullScreen />}
@@ -175,129 +214,118 @@ export default function ClientWrapper({
 
 			<Footer />
 
-			{/* <Modal
-				open={isOpenFirstRegistrationModal}
-				onClose={() => setIsOpenFirstRegistrationModal(false)}
-			>
-				<div className="p-12 min-w-[450px] text-center max-sm:min-w-0 max-sm:p-5">
-					<h6 className="font-medium text-[22px] uppercase mt-1.5">
-						Enter your trade URL and email
-					</h6>
-
-					<p className="text-secondary-text text-[13px] mt-3 mb-6">
-						To continue, please enter your trade URL and email
-						address
-					</p>
-
-					<div className="flex flex-col gap-4 mb-6">
-						<input
-							type="text"
-							placeholder="Steam Trade URL"
-							value={firstRegistrationData.tradeUrl}
-							onChange={(e) =>
-								setFirstRegistrationData({
-									...firstRegistrationData,
-									tradeUrl: e.target.value,
-								})
-							}
-							className="bg-[#181d2a] text-white px-4 py-3 rounded-md text-sm border border-primary-border placeholder:text-[#888] focus:outline-none"
-						/>
-
-						<input
-							type="email"
-							placeholder="Email"
-							value={firstRegistrationData.email}
-							onChange={(e) =>
-								setFirstRegistrationData({
-									...firstRegistrationData,
-									email: e.target.value,
-								})
-							}
-							className="bg-[#181d2a] text-white px-4 py-3 rounded-md text-sm border border-primary-border placeholder:text-[#888] focus:outline-none"
-						/>
-					</div>
-
-					<Button
-						text="Confirm"
-						onClick={() => {
-							setIsOpenFirstRegistrationModal(false);
-							setGlobalLoading(true);
-						}}
-					/>
-				</div>
-			</Modal> */}
-
 			<Modal
 				open={isOpenReplenishmentModal}
 				onClose={() => setIsOpenReplenishmentModal(false)}
 			>
 				<div className="pb-8 mx-8 max-xs:py-5 max-xs:mx-5 pt-7 w-[480px] max-sm:w-auto">
-					<h6 className="mb-6 flex items-center gap-4 text-[22px] font-bold">
-						<img src="/icons/wallet.png" alt="" />
-						<span className="uppercase">Replenishment</span>
-					</h6>
+					{localLoading && (
+						<Loader className="flex-middle py-10" size="sm" />
+					)}
 
-					<CurrencyDropdown />
+					{!localLoading && (
+						<>
+							<h6 className="mb-6 flex items-center gap-4 text-[22px] font-bold">
+								<img src="/icons/wallet.png" alt="" />
+								<span className="uppercase">Replenishment</span>
+							</h6>
 
-					<div className="grid grid-cols-3 gap-[15px] mt-8 mb-9 max-xs:gap-3 max-xs:grid-cols-2 max-xs:my-5">
-						{paymentSystems.length > 0 &&
-							paymentSystems.map((paymentSystem) => (
-								<button
-									className="max-xs:p-6 flex-middle bg-[#181d2a] hover:brightness-125 rounded-md h-[100px]"
-									key={paymentSystem.id}
-								>
-									<img
-										src={paymentSystem.img}
-										alt={paymentSystem.name}
-									/>
-								</button>
-							))}
-					</div>
+							{/* {currencies && <CurrencyDropdown currencies={currencies} />} */}
 
-					<div className="max-xs:flex-col max-xs:gap-2 flex items-start gap-5">
-						<Input
-							onlyText={false}
-							type="number"
-							label="Give away"
-							placeholder="Enter number"
-						/>
-						<Input
-							onlyText={false}
-							type="number"
-							label="Receive"
-							placeholder="Enter number"
-						/>
-					</div>
+							<div className="grid grid-cols-3 gap-[15px] mt-8 mb-9 max-xs:gap-3 max-xs:grid-cols-2 max-xs:my-5">
+								{paymentSystems.length > 0 &&
+									paymentSystems.map((paymentSystem) => (
+										<button
+											onClick={() =>
+												setPaymentData((prev) => ({
+													...prev,
+													payment_system:
+														paymentSystem.id,
+												}))
+											}
+											className={clsx(
+												"max-xs:p-6 flex-middle bg-[#181d2a] hover:brightness-125 rounded-md h-[100px]",
+												paymentData.payment_system ===
+													paymentSystem.id &&
+													"bg-accent-purple"
+											)}
+											key={paymentSystem.id}
+										>
+											<img
+												src={paymentSystem.img}
+												alt={paymentSystem.name}
+											/>
+										</button>
+									))}
+							</div>
 
-					<div className="mt-3 mb-8 font-medium text-secondary-text text-[11px] leading-[19px]">
-						<p>
-							Minimum deposit amount{" "}
-							<span className="text-accent-purple">$10</span>
-						</p>
+							<div className="max-xs:flex-col max-xs:gap-2 flex items-start gap-5">
+								<Input
+									onlyText={false}
+									type="number"
+									label="Give away"
+									value={paymentData.amount}
+									onChange={(e) => {
+										setPaymentData((prev) => ({
+											...prev,
+											amount: e.target.value,
+										}));
+									}}
+									placeholder="Enter number"
+								/>
+								<Input
+									className="pointer-events-none"
+									onlyText={false}
+									type="number"
+									label="Receive"
+									value={paymentData.amount}
+									onChange={() => {}}
+									placeholder="Enter number"
+								/>
+							</div>
 
-						<p>
-							By clicking the button below, you agree to the{" "}
-							<a
-								href="#"
-								target="_blank"
-								className="text-primary-link hover:brightness-125"
+							<div className="mt-3 mb-8 font-medium text-secondary-text text-[11px] leading-[19px]">
+								<p>
+									Minimum deposit amount{" "}
+									<span className="text-accent-purple">
+										€8
+									</span>
+								</p>
+
+								<p>
+									By clicking the button below, you agree to
+									the{" "}
+									<a
+										href="#"
+										target="_blank"
+										className="text-primary-link hover:brightness-125"
+									>
+										privacy policy
+									</a>{" "}
+									and{" "}
+									<a
+										href="#"
+										target="_blank"
+										className="text-primary-link hover:brightness-125"
+									>
+										terms of use
+									</a>
+								</p>
+							</div>
+
+							<button
+								onClick={handleProceedToPayment}
+								className={clsx(
+									"uppercase font-bold border border-accent-purple rounded-lg bg-accent-purple/20 hover:bg-accent-purple leading-[100%] w-full py-[25px] text-[19px] max-xs:py-5",
+									(!paymentData.amount ||
+										parseFloat(paymentData.amount) < 8) &&
+										"opacity-50 pointer-events-none"
+								)}
 							>
-								privacy policy
-							</a>{" "}
-							and{" "}
-							<a
-								href="#"
-								target="_blank"
-								className="text-primary-link hover:brightness-125"
-							>
-								terms of use
-							</a>
-						</p>
-					</div>
-
-					<button className="uppercase font-bold border border-accent-purple rounded-lg bg-accent-purple/20 hover:bg-accent-purple leading-[100%] w-full py-[25px] text-[19px] max-xs:py-5">
-						Proceed to payment ›
-					</button>
+								Proceed to payment ›
+							</button>
+						</>
+					)}
 				</div>
 			</Modal>
 
@@ -332,7 +360,12 @@ export default function ClientWrapper({
 						You have 60 minutes to pay
 					</p>
 
-					<Button text="Proceed to payment" />
+					{paymentUrl && paymentUrl !== "error" && (
+						<Button
+							onClick={() => window.open(paymentUrl, "_blank")}
+							text="Proceed to payment"
+						/>
+					)}
 				</div>
 			</Modal>
 

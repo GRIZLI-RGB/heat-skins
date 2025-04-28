@@ -147,19 +147,19 @@ export default function ItemPage({
 		return percentage;
 	};
 
-	const handleInspect = (item: ItemType) => {
-		const asset = item.asset;
-		const classid = item.classid;
-		const instanceid = item.instanceid || "0";
+	// const handleInspect = (item: ItemType) => {
+	// 	const asset = item.asset;
+	// 	const classid = item.classid;
+	// 	const instanceid = item.instanceid || "0";
 
-		if (!asset || !classid) {
-			console.error("Missing asset or classid!");
-			return;
-		}
+	// 	if (!asset || !classid) {
+	// 		console.error("Missing asset or classid!");
+	// 		return;
+	// 	}
 
-		const inspectLink = `steam://rungame/730/76561202255233023/+csgo_econ_action_preview%20M${asset}_${classid}_${instanceid}`;
-		window.location.href = inspectLink;
-	};
+	// 	const inspectLink = `steam://rungame/730/76561202255233023/+csgo_econ_action_preview%20M${asset}_${classid}_${instanceid}`;
+	// 	window.location.href = inspectLink;
+	// };
 	
 	const handleBuyItem = (itemId: number) => {
 		alert(itemId);
@@ -252,7 +252,7 @@ export default function ItemPage({
 								</div>
 
 								<div className="flex items-center gap-3 max-xs:gap-2">
-									<button
+									{/* <button
 										onClick={() => handleInspect(item)}
 										className="bg-[#191f2d] hover:brightness-125 max-xs:w-10 max-xs:p-0 max-xs:flex-middle rounded-md flex gap-3 items-center pl-4 pr-[18px] h-10 text-[13px] font-medium"
 									>
@@ -261,7 +261,7 @@ export default function ItemPage({
 										<span className="max-xs:hidden">
 											Inspect in game
 										</span>
-									</button>
+									</button> */}
 
 									<button
 										onClick={() =>

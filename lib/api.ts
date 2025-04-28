@@ -145,7 +145,7 @@ export const paymentInit = async ({
 	payment_system,
 	amount,
 }: {
-	payment_system: string;
+	payment_system: number;
 	amount: number;
 }) => {
 	return await api.post(`payment/initiate`, {
@@ -155,5 +155,7 @@ export const paymentInit = async ({
 };
 
 export const getPaymentSystems = async () => await api.get("payment/systems");
+
+export const getCurrencies = async () => await api.get("currencies");
 
 export default api;

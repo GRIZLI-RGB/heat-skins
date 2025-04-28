@@ -61,7 +61,7 @@ export default function Input({
 					type={type}
 				/>
 
-				<span className="text-[#434b60] text-[14px]">$</span>
+				<span className="text-[#434b60] text-[14px]">€</span>
 			</div>
 		</div>
 	);
