@@ -4,6 +4,7 @@ import { OverlayScrollbars } from "overlayscrollbars";
 import { useEffect, useState } from "react";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import clsx from "clsx";
 
 import Header from "../ui/header";
 import Footer from "../ui/footer";
@@ -12,25 +13,37 @@ import Input from "../ui/input";
 import Loader from "../ui/loader";
 
 import {
-	_disableBodyScroll_,
 	_globalLoading_,
 	_isOpenReplenishmentModal_,
 	_user_,
 } from "@/lib/store";
 import {
+	editProfile,
 	getOauthSteamLink,
 	getPaymentSystems,
 	getUser,
 	paymentInit,
 } from "@/lib/api";
-import { PaymentSystemType } from "@/lib/types";
-import clsx from "clsx";
+import { PaymentSystemType, UserType } from "@/lib/types";
 
-const Button = ({ text, onClick }: { text: string; onClick?: () => void }) => {
+import { Tooltip } from "react-tooltip";
+
+const Button = ({
+	text,
+	onClick,
+	className,
+}: {
+	text: string;
+	onClick?: () => void;
+	className?: string;
+}) => {
 	return (
 		<button
 			onClick={onClick}
-			className="uppercase font-bold border border-accent-purple rounded-lg bg-accent-purple/20 hover:bg-accent-purple leading-[100%] w-full py-[25px] text-[19px] max-xs:py-5"
+			className={clsx(
+				"uppercase font-bold border border-accent-purple rounded-lg bg-accent-purple/20 hover:bg-accent-purple leading-[100%] w-full py-[25px] text-[19px] max-xs:py-5",
+				className
+			)}
 		>
 			{text}
 		</button>
@@ -49,8 +62,18 @@ export default function ClientWrapper({
 	const globalLoading = useAtomValue(_globalLoading_);
 	const setUser = useSetAtom(_user_);
 
-	const [disableBodyScroll, setDisableBodyScroll] =
-		useAtom(_disableBodyScroll_);
+	// const [disableBodyScroll, setDisableBodyScroll] =
+	// 	useAtom(_disableBodyScroll_);
+
+	const [firstRegistrationData, setFirstRegistrationData] = useState<{
+		tradeUrl: string;
+		email: string;
+	}>({
+		tradeUrl: "",
+		email: "",
+	});
+	const [isOpenFirstRegistrationModal, setIsOpenFirstRegistrationModal] =
+		useState(false);
 
 	const [isOpenPurchasePaymentModal, setIsOpenPurchasePaymentModal] =
 		useState(false);
@@ -75,13 +98,6 @@ export default function ClientWrapper({
 	const [paymentSystems, setPaymentSystems] = useState<PaymentSystemType[]>(
 		[]
 	);
-	// const [currencies, setCurrencies] = useState<{
-	// 	currencies: CurrencyType[];
-	// 	current_id: number;
-	// 	current_name: string;
-	// 	current_symbol: string;
-	// 	current_img: string;
-	// }>();
 	const [paymentData, setPaymentData] = useState<{
 		payment_system: number;
 		amount: string;
@@ -117,10 +133,24 @@ export default function ClientWrapper({
 
 		if (!refId) {
 			getUser()
-				.then((res) => setUser(res.data))
+				.then((res) => {
+					const user: UserType = res.data;
+
+					setUser(user);
+
+					if (!user.steam_trade_url || !user.email) {
+						setIsOpenFirstRegistrationModal(true);
+					} else {
+						getPaymentSystems().then((resp) =>
+							setPaymentSystems(resp.data)
+						);
+					}
+				})
 				.catch(() => {
 					setUser(null);
+
 					localStorage.removeItem("token");
+
 					if (pathname.startsWith("/personal-account")) {
 						router.replace("/not-found");
 					}
@@ -143,37 +173,33 @@ export default function ClientWrapper({
 	}, []);
 
 	useEffect(() => {
-		getPaymentSystems().then((res) => setPaymentSystems(res.data));
-		// getCurrencies().then((res) => setCurrencies(res.data));
-	}, []);
-
-	useEffect(() => {
 		const osInstance = OverlayScrollbars(document.body);
 		if (!osInstance) return;
 
 		osInstance.options({
-			overflow: { y: disableBodyScroll ? "hidden" : "scroll" },
+			// overflow: { y: disableBodyScroll ? "hidden" : "scroll" },
+			overflow: { y: "scroll" },
 		});
-	}, [disableBodyScroll]);
+	}, []);
 
-	useEffect(() => {
-		setDisableBodyScroll(
-			isOpenReplenishmentModal ||
-				isOpenPurchasePaymentModal ||
-				isOpenPurchaseItemsModal ||
-				isOpenSuccessfulReplenishmentModal ||
-				isOpenNotEnoughMoneyModal ||
-				isOpenEnoughMoneyModal
-		);
-	}, [
-		isOpenEnoughMoneyModal,
-		isOpenNotEnoughMoneyModal,
-		isOpenPurchaseItemsModal,
-		isOpenPurchasePaymentModal,
-		isOpenReplenishmentModal,
-		isOpenSuccessfulReplenishmentModal,
-		setDisableBodyScroll,
-	]);
+	// useEffect(() => {
+	// 	setDisableBodyScroll(
+	// 		isOpenReplenishmentModal ||
+	// 			isOpenPurchasePaymentModal ||
+	// 			isOpenPurchaseItemsModal ||
+	// 			isOpenSuccessfulReplenishmentModal ||
+	// 			isOpenNotEnoughMoneyModal ||
+	// 			isOpenEnoughMoneyModal
+	// 	);
+	// }, [
+	// 	isOpenEnoughMoneyModal,
+	// 	isOpenNotEnoughMoneyModal,
+	// 	isOpenPurchaseItemsModal,
+	// 	isOpenPurchasePaymentModal,
+	// 	isOpenReplenishmentModal,
+	// 	isOpenSuccessfulReplenishmentModal,
+	// 	setDisableBodyScroll,
+	// ]);
 
 	const [localLoading, setLocalLoading] = useState(false);
 
@@ -208,11 +234,117 @@ export default function ClientWrapper({
 		<>
 			{globalLoading && <Loader fullScreen />}
 
+			<Tooltip
+				id="default-tooltip"
+				style={{
+					zIndex: 9999,
+					backgroundColor: "#f53361",
+					color: "white",
+				}}
+			/>
+
 			<Header />
 
 			<main className="flex-1">{children}</main>
 
 			<Footer />
+
+			<Modal
+				open={isOpenFirstRegistrationModal}
+				onClose={() => {
+					if (!localLoading) {
+						localStorage.removeItem("token");
+						window.location.reload();
+					}
+				}}
+			>
+				<div className="p-12 min-w-[450px] text-center max-sm:min-w-0 max-sm:p-5">
+					{localLoading && (
+						<Loader size="sm" className="py-12 flex-middle" />
+					)}
+
+					{!localLoading && (
+						<>
+							<h6 className="font-medium text-[22px] uppercase mt-1.5">
+								Enter your trade URL and email
+							</h6>
+
+							<p className="text-secondary-text text-[13px] mt-3 mb-6">
+								To continue, please enter your trade URL and
+								email address
+							</p>
+
+							<div className="flex flex-col gap-4 mb-6">
+								<input
+									type="text"
+									placeholder="Steam Trade URL"
+									value={firstRegistrationData.tradeUrl}
+									onChange={(e) =>
+										setFirstRegistrationData({
+											...firstRegistrationData,
+											tradeUrl: e.target.value,
+										})
+									}
+									className="bg-[#181d2a] text-white px-4 py-3 rounded-md text-sm border border-primary-border placeholder:text-[#888] focus:outline-none"
+								/>
+
+								<input
+									type="email"
+									placeholder="Email"
+									value={firstRegistrationData.email}
+									onChange={(e) =>
+										setFirstRegistrationData({
+											...firstRegistrationData,
+											email: e.target.value,
+										})
+									}
+									className="bg-[#181d2a] text-white px-4 py-3 rounded-md text-sm border border-primary-border placeholder:text-[#888] focus:outline-none"
+								/>
+							</div>
+							{/* https://steamcommunity.com/tradeoffer/new/?partner=1890423570&token=MeULGzIj */}
+							<Button
+								className={clsx(
+									(!firstRegistrationData.tradeUrl.startsWith(
+										"https://steamcommunity.com/tradeoffer/new"
+									) ||
+										!(
+											firstRegistrationData.tradeUrl.includes(
+												"token"
+											) &&
+											firstRegistrationData.tradeUrl.includes(
+												"partner"
+											)
+										) ||
+										!firstRegistrationData.email.includes(
+											"@"
+										) ||
+										firstRegistrationData.email.length <
+											6) &&
+										"pointer-events-none brightness-50"
+								)}
+								text="Confirm"
+								onClick={() => {
+									setLocalLoading(true);
+
+									editProfile({
+										email: firstRegistrationData.email,
+										trade_url:
+											firstRegistrationData.tradeUrl,
+									})
+										.then(() => {
+											window.location.href =
+												"/personal-account/inventory";
+										})
+										.catch(() => {
+											alert("Проверьте введенные поля");
+											setLocalLoading(false);
+										});
+								}}
+							/>
+						</>
+					)}
+				</div>
+			</Modal>
 
 			<Modal
 				open={isOpenReplenishmentModal}

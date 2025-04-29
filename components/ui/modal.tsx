@@ -1,5 +1,4 @@
-import { OverlayScrollbars } from "overlayscrollbars";
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { Modal as ReactResponsiveModal } from "react-responsive-modal";
 
 import "react-responsive-modal/styles.css";
@@ -15,28 +14,28 @@ export default function Modal({
 }) {
 	const containerRef = useRef(null);
 
-	useEffect(() => {
-		if (open) {
-			const timer = setTimeout(() => {
-				const modalContainer = document.querySelector(
-					".react-responsive-modal-container.react-responsive-modal-containerCenter"
-				);
+	// useEffect(() => {
+	// 	if (open) {
+	// 		const timer = setTimeout(() => {
+	// 			const modalContainer = document.querySelector(
+	// 				".react-responsive-modal-container.react-responsive-modal-containerCenter"
+	// 			);
 
-				if (modalContainer) {
-					OverlayScrollbars(
-						{ target: modalContainer as HTMLElement },
-						{ scrollbars: { autoHide: "scroll" } }
-					);
-				}
-			}, 100);
+	// 			if (modalContainer) {
+	// 				OverlayScrollbars(
+	// 					{ target: modalContainer as HTMLElement },
+	// 					{ scrollbars: { autoHide: "scroll" } }
+	// 				);
+	// 			}
+	// 		}, 100);
 
-			return () => clearTimeout(timer);
-		}
-	}, [open]);
+	// 		return () => clearTimeout(timer);
+	// 	}
+	// }, [open]);
 
 	return (
 		<>
-			<div className="pizda" ref={containerRef} />
+			<div ref={containerRef} />
 
 			<ReactResponsiveModal
 				blockScroll

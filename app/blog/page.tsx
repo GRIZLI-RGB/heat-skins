@@ -21,8 +21,6 @@ export default function BlogPage() {
 	const setGlobalLoading = useSetAtom(_globalLoading_);
 
 	useEffect(() => {
-		setGlobalLoading(true);
-
 		getBlogBannerArticle()
 			.then((res) => {
 				setBannerArticle(res.data);
@@ -118,12 +116,15 @@ export default function BlogPage() {
 											{truncateString(article.title)}
 										</h6>
 
-										<p className="break-all text-[13px] text-secondary-text font-medium mt-1 mb-4">
-											{truncateString(
-												article.content,
-												128
-											)}
-										</p>
+										<p
+											className="break-all text-[13px] text-secondary-text font-medium mt-1 mb-4"
+											dangerouslySetInnerHTML={{
+												__html: truncateString(
+													article.content,
+													128
+												),
+											}}
+										/>
 
 										<button className="text-[12px] uppercase font-bold group-hover:text-accent-purple">
 											Read completely ›

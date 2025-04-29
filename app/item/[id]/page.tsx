@@ -3,9 +3,9 @@
 import clsx from "clsx";
 import { OverlayScrollbars } from "overlayscrollbars";
 import { use, useEffect, useRef, useState } from "react";
-import { useAtomValue, useSetAtom } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 
-import { _globalLoading_, _user_ } from "@/lib/store";
+import { _cartItemsIds_, _globalLoading_, _user_ } from "@/lib/store";
 import { getItem, getOauthSteamLink } from "@/lib/api";
 import { ItemType } from "@/lib/types";
 
@@ -40,7 +40,7 @@ const FloatBar = ({
 	return (
 		<div className={clsx(className)}>
 			{labels && (
-				<div className="mb-0.5 text-[11px] font-medium flex items-center justify-between">
+				<div className="mb-1 text-[11px] font-medium flex items-center justify-between">
 					<span className="text-[#b1b7c5]">
 						{offer.wear_short_name}
 					</span>
@@ -68,7 +68,7 @@ const FloatBar = ({
 				))}
 
 				<img
-					className="brightness-[1000%] absolute -top-2"
+					className="brightness-[1000%] absolute -top-1.5 w-[6px]"
 					style={{
 						left: `${offer.float * 100}%`,
 						transform: `translateX(-50%)`,
@@ -147,22 +147,18 @@ export default function ItemPage({
 		return percentage;
 	};
 
-	// const handleInspect = (item: ItemType) => {
-	// 	const asset = item.asset;
-	// 	const classid = item.classid;
-	// 	const instanceid = item.instanceid || "0";
-
-	// 	if (!asset || !classid) {
-	// 		console.error("Missing asset or classid!");
-	// 		return;
-	// 	}
-
-	// 	const inspectLink = `steam://rungame/730/76561202255233023/+csgo_econ_action_preview%20M${asset}_${classid}_${instanceid}`;
-	// 	window.location.href = inspectLink;
-	// };
-	
 	const handleBuyItem = (itemId: number) => {
 		alert(itemId);
+	};
+
+	const [cartItemsIds, setCartItemsIds] = useAtom(_cartItemsIds_);
+
+	const toggleCart = (itemId: number) => {
+		const updatedCart = cartItemsIds.includes(itemId)
+			? cartItemsIds.filter((id) => id !== itemId)
+			: [...cartItemsIds, itemId];
+
+		setCartItemsIds(updatedCart);
 	};
 
 	if (item) {
@@ -209,11 +205,13 @@ export default function ItemPage({
 							</div>
 						</div>
 
-						{item.stickers && (
+						{item.stickers && item.stickers.length > 0 && (
 							<div className="bg-primary-background rounded-md pl-7 pt-5 pb-4 relative max-sm:px-5 max-sm:pt-4">
 								<BlockTitle className="mb-4">
 									Key rings and stickers{" "}
-									<span className="text-[#9298a4]">(54)</span>
+									<span className="text-[#9298a4]">
+										({item.stickers.length})
+									</span>
 								</BlockTitle>
 
 								<div ref={keyRingsRef} className="pb-6">
@@ -238,7 +236,12 @@ export default function ItemPage({
 						)}
 					</div>
 
-					<div className="max-lg:w-full overflow-hidden bg-primary-background rounded-t-md shrink-0 w-[575px] border-b-[3px] border-[#f82740] px-5 pb-4 pt-6 relative max-xs:px-4 max-xs:pb-4 max-xs:pt-5">
+					<div
+						style={{
+							borderColor: item.rarity_color,
+						}}
+						className="max-lg:w-full overflow-hidden bg-primary-background rounded-t-md shrink-0 w-[575px] border-b-[3px] px-5 pb-4 pt-6 relative max-xs:px-4 max-xs:pb-4 max-xs:pt-5"
+					>
 						<div className="raise-up">
 							<div className="mb-7 flex items-center justify-between">
 								<div className="leading-[20px] font-semibold flex flex-col">
@@ -252,17 +255,6 @@ export default function ItemPage({
 								</div>
 
 								<div className="flex items-center gap-3 max-xs:gap-2">
-									{/* <button
-										onClick={() => handleInspect(item)}
-										className="bg-[#191f2d] hover:brightness-125 max-xs:w-10 max-xs:p-0 max-xs:flex-middle rounded-md flex gap-3 items-center pl-4 pr-[18px] h-10 text-[13px] font-medium"
-									>
-										<img src="/icons/eye.png" alt="" />
-
-										<span className="max-xs:hidden">
-											Inspect in game
-										</span>
-									</button> */}
-
 									<button
 										onClick={() =>
 											window.open(
@@ -331,18 +323,36 @@ export default function ItemPage({
 								</div>
 
 								{user && (
-									<button className="max-xs:text-[14px] max-xs:h-12 text-[16px] leading-[100%] w-full h-[56px] uppercase rounded-md border border-accent-purple font-semibold flex-middle gap-2.5 bg-accent-purple hover:brightness-125">
+									<button
+										onClick={() => toggleCart(item.id)}
+										className="max-xs:text-[14px] max-xs:h-12 text-[16px] leading-[100%] w-full h-[56px] uppercase rounded-md border border-accent-purple font-semibold flex-middle gap-2.5 bg-accent-purple hover:brightness-125"
+									>
 										<img
 											className="brightness-[1000%] pb-0.5 pointer-events-none"
 											src="/icons/cart-big.png"
 											alt=""
 										/>
 
-										<span>Add to cart</span>
+										<span>
+											{cartItemsIds.includes(item.id)
+												? "Remove from cart"
+												: "Add to cart"}
+										</span>
 									</button>
 								)}
 
 								<button
+									data-tooltip-hidden={
+										user
+											? +user.balance >= +item.price
+											: false
+									}
+									data-tooltip-id="default-tooltip"
+									data-tooltip-content={
+										user
+											? "Not enough funds"
+											: "Enter the account"
+									}
 									onClick={() => {
 										if (!user) {
 											setGlobalLoading(true);
@@ -350,20 +360,28 @@ export default function ItemPage({
 											window.location.href =
 												getOauthSteamLink();
 										} else {
-											handleBuyItem(item.id);
+											if (+user.balance >= +item.price) {
+												handleBuyItem(item.id);
+											}
 										}
 									}}
-									className="max-xs:text-[14px] max-xs:h-12 text-[16px] leading-[100%] w-full h-[56px] uppercase rounded-md border border-accent-purple font-semibold flex-middle bg-accent-purple/20 hover:bg-accent-purple"
+									className={clsx(
+										"max-xs:text-[14px] max-xs:h-12 text-[16px] leading-[100%] w-full h-[56px] uppercase rounded-md border border-accent-purple font-semibold flex-middle bg-accent-purple/20 ",
+										!user || +user.balance < +item.price
+											? "opacity-50 !cursor-not-allowed"
+											: "hover:bg-accent-purple"
+									)}
 								>
 									Buy now
 								</button>
 							</div>
 						</div>
 
-						<img
-							className="absolute bottom-0 left-0 right-0 w-full"
-							src="/images/decorations/item-shadow.png"
-							alt=""
+						<div
+							style={{
+								background: `linear-gradient(to bottom, ${item.rarity_gradient.from}, ${item.rarity_gradient.via}, ${item.rarity_gradient.to})`,
+							}}
+							className="absolute opacity-50 bottom-0 top-0 left-0 right-0 w-full"
 						/>
 					</div>
 				</div>
@@ -432,8 +450,32 @@ export default function ItemPage({
 									)}
 
 									<button
-										onClick={() => handleBuyItem(offer.id)}
-										className="max-md:w-full h-[46px] flex-middle font-semibold uppercase border rounded-md border-accent-purple bg-accent-purple/20 px-7 leading-[100%] hover:bg-accent-purple"
+										data-tooltip-hidden={
+											user
+												? +user.balance >= +offer.price
+												: false
+										}
+										data-tooltip-id="default-tooltip"
+										data-tooltip-content={
+											user
+												? "Not enough funds"
+												: "Enter the account"
+										}
+										onClick={() => {
+											if (
+												user &&
+												+user.balance >= +offer.price
+											) {
+												handleBuyItem(offer.id);
+											}
+										}}
+										className={clsx(
+											"max-md:w-full h-[46px] flex-middle font-semibold uppercase border rounded-md border-accent-purple bg-accent-purple/20 px-7 leading-[100%]",
+											!user ||
+												+user.balance < +offer.price
+												? "opacity-50 !cursor-not-allowed"
+												: "hover:bg-accent-purple"
+										)}
 									>
 										Buy now
 									</button>

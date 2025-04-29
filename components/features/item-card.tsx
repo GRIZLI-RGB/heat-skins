@@ -34,7 +34,7 @@ export default function ItemCard({ item }: { item: ItemType }) {
 			onMouseLeave={() => setHovered(false)}
 		>
 			{item.stickers.length > 0 && (
-				<div className="absolute flex flex-col top-3 right-2.5 gap-2.5">
+				<div className="raise-up absolute flex flex-col top-3 right-2.5 gap-2.5">
 					{item.stickers.map((sticker) => (
 						<img
 							className="h-5"
@@ -46,18 +46,14 @@ export default function ItemCard({ item }: { item: ItemType }) {
 				</div>
 			)}
 
-			<span className="text-[15px] font-semibold">
+			<span className="raise-up text-[15px] font-semibold">
 				{item.currency_symbol}
 				{item.price}
 			</span>
 
-			<img
-				className="mx-auto my-5"
-				src={item.img || "/images/gradient-knife.png"}
-				alt=""
-			/>
+			<img className="mx-auto my-5 raise-up" src={item.img} alt="" />
 
-			<div className="flex flex-col text-[12px]">
+			<div className="flex flex-col text-[12px] raise-up">
 				<span className="font-semibold text-[#f19f63]">
 					{item.market_hash_name || "★ Hand Wraps Dragonic"}
 				</span>
@@ -73,13 +69,22 @@ export default function ItemCard({ item }: { item: ItemType }) {
 				)}
 			</div>
 
-			<img
+			{/* <img
 				className={clsx(
 					"absolute left-0 top-0 bottom-0 right-0",
 					hovered ? "opacity-100" : "opacity-0"
 				)}
 				alt=""
 				src="/images/decorations/item-card-hovered-shadow.png"
+			/> */}
+			<div
+				style={{
+					background: `linear-gradient(to top, ${item.rarity_gradient.from}, ${item.rarity_gradient.via}, ${item.rarity_gradient.to})`,
+				}}
+				className={clsx(
+					"rounded-md absolute left-0 top-0 bottom-0 right-0",
+					hovered ? "opacity-50" : "opacity-0"
+				)}
 			/>
 
 			{user && (

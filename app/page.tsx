@@ -71,8 +71,6 @@ interface FiltersState {
 }
 
 export default function HomePage() {
-	const [filterTab, setFilterTab] = useState<"cs2" | "dota2">("cs2");
-
 	const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
 	const setGlobalLoading = useSetAtom(_globalLoading_);
@@ -180,7 +178,6 @@ export default function HomePage() {
 	}, [loading, hasMore, page, filters, searchQueryDebounced]);
 
 	useEffect(() => {
-		// Сбрасываем состояние перед новым запросом
 		setItems([]);
 		setPage(1);
 		setHasMore(true);
@@ -312,58 +309,31 @@ export default function HomePage() {
 			<div className="flex items-start max-sm:flex-col">
 				<section className="border-r max-sm:border-r-0 max-sm:w-full border-[#1b212e] p-[18px] pb-[90px] max-sm:pb-0 w-[274px] shrink-0">
 					<div className="flex w-full">
-						{["cs2", "dota2"].map((tab) => (
-							<button
-								className={clsx(
-									"relative h-12 flex items-center gap-3 border w-full px-[18px] bg-[#11151e] overflow-hidden",
-									tab === filterTab
-										? "border-accent-purple z-[5] rounded-md"
-										: "border-primary-border",
-									tab === "cs2" &&
-										filterTab !== "cs2" &&
-										"rounded-l-md",
-									tab === "dota2" &&
-										filterTab !== "dota2" &&
-										"rounded-r-md",
-									tab === "cs2" && "-mr-0.5",
-									tab === "dota2" && "-ml-0.5"
-								)}
-								key={tab}
-								onClick={() =>
-									setFilterTab(tab as "cs2" | "dota2")
+						<div
+							className={clsx(
+								"justify-center relative h-12 flex items-center gap-3 border w-full px-[18px] bg-[#11151e] overflow-hidden border-accent-purple z-[5] rounded-md"
+							)}
+						>
+							<img
+								className={
+									"!transition-none filter-to-accent-purple"
 								}
-							>
-								<img
-									className={clsx(
-										"!transition-none",
-										tab === filterTab &&
-											"filter-to-accent-purple"
-									)}
-									src={`/icons/${tab}.png`}
-									alt=""
-								/>
+								src={`/icons/cs2.png`}
+								alt=""
+							/>
 
-								<span className="text-[13px] font-semibold">
-									{
-										{
-											cs2: "CS2",
-											dota2: "DOTA 2",
-										}[tab]
-									}
-								</span>
+							<span className="text-[13px] font-semibold">
+								CS2
+							</span>
 
-								<img
-									className={clsx(
-										"absolute top-0 left-0 bottom-0 h-full",
-										tab === filterTab
-											? "opacity-100"
-											: "opacity-0"
-									)}
-									src="/images/decorations/tab-shadow.png"
-									alt=""
-								/>
-							</button>
-						))}
+							<img
+								className={clsx(
+									"absolute top-0 left-0 bottom-0 h-full opacity-100"
+								)}
+								src="/images/decorations/tab-shadow.png"
+								alt=""
+							/>
+						</div>
 					</div>
 
 					<div className="my-[18px] flex items-center justify-between gap-2">
@@ -420,6 +390,7 @@ export default function HomePage() {
 						/>
 
 						<FilterDropdown
+							defaultOpen
 							variant="float"
 							min={filtersData.float_min}
 							max={filtersData.float_max}

@@ -1,11 +1,12 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import clsx from "clsx";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { useOnClickOutside } from "usehooks-ts";
 import { AnimatePresence, motion } from "motion/react";
 import Image from "next/image";
+import { RxExit } from "react-icons/rx";
 
 import SearchBar from "@components/features/search-bar";
 import Logo from "@components/ui/logo";
@@ -18,9 +19,13 @@ import {
 	_isOpenReplenishmentModal_,
 	_user_,
 } from "@/lib/store";
-import { getItemsByIds, getOauthSteamLink } from "@/lib/api";
-import { ItemType, UserType } from "@/lib/types";
-import { RxExit } from "react-icons/rx";
+import {
+	getCurrencies,
+	getItemsByIds,
+	getOauthSteamLink,
+	setCurrency,
+} from "@/lib/api";
+import { CurrencyType, ItemType, UserType } from "@/lib/types";
 import Loader from "./loader";
 
 const Navigation = ({ className }: { className?: string }) => {
@@ -101,8 +106,6 @@ const UserBadge = ({
 	className?: string;
 	user: UserType;
 }) => {
-	const router = useRouter();
-
 	const setIsOpenReplenishmentModal = useSetAtom(_isOpenReplenishmentModal_);
 	const setIsMobileMenuOpen = useSetAtom(_isMobileMenuOpen_);
 	const setGlobalLoading = useSetAtom(_globalLoading_);
@@ -111,7 +114,7 @@ const UserBadge = ({
 		<div className={clsx("flex items-center gap-3.5", className)}>
 			<Image
 				onClick={() => {
-					router.push("/personal-account/inventory");
+					window.location.href = "/personal-account/inventory";
 					setIsMobileMenuOpen(false);
 				}}
 				quality={100}
@@ -195,15 +198,25 @@ const CartButton = ({ className }: { className?: string }) => {
 
 	useEffect(() => {
 		if (isOpenCart) {
-			getItemsByIds(cartItemsIds).then(({ data }) =>
-				setCartItems(data.offers)
-			);
+			if (cartItemsIds.length > 0) {
+				getItemsByIds(cartItemsIds).then(({ data }) =>
+					setCartItems(data.offers)
+				);
+			} else {
+				setCartItems([]);
+			}
 		}
 	}, [cartItemsIds, isOpenCart]);
 
 	const handleRemoveItemFromCart = (id: number) => {
 		setCartItemsIds(cartItemsIds.filter((item) => item !== id));
 	};
+
+	const isEnoughMoney =
+		user && cartItems !== "loading" && cartItems.length > 0
+			? +user.balance >=
+			  cartItems.reduce((acc, item) => +item.price + acc, 0)
+			: false;
 
 	return (
 		<div className={clsx("relative", className)} ref={cartRef}>
@@ -336,14 +349,20 @@ const CartButton = ({ className }: { className?: string }) => {
 																		: `${
 																				user?.currency_symbol ||
 																				"$"
-																		  }${cartItems.reduce(
-																				(
-																					acc,
-																					item
-																				) =>
-																					acc +
-																					+item.price,
-																				0
+																		  }${Number(
+																				cartItems
+																					.reduce(
+																						(
+																							acc,
+																							item
+																						) =>
+																							acc +
+																							+item.price,
+																						0
+																					)
+																					.toFixed(
+																						2
+																					)
 																		  )}`}
 																</span>
 															</div>
@@ -364,7 +383,26 @@ const CartButton = ({ className }: { className?: string }) => {
 													</a>
 												</p>
 
-												<button className="uppercase w-full font-bold text-[18px] py-4 leading-[16px] rounded-md border-accent-purple border bg-accent-purple/20 hover:bg-accent-purple">
+												<button
+													onClick={() => {
+														if (isEnoughMoney) {
+															// TODO
+														}
+													}}
+													data-tooltip-hidden={
+														isEnoughMoney
+													}
+													data-tooltip-id="default-tooltip"
+													data-tooltip-content={
+														"Not enough funds"
+													}
+													className={clsx(
+														"uppercase w-full font-bold text-[18px] py-4 leading-[16px] rounded-md border-accent-purple border bg-accent-purple/20",
+														!isEnoughMoney
+															? "opacity-50 !cursor-not-allowed"
+															: "hover:bg-accent-purple"
+													)}
+												>
 													Buy
 												</button>
 
@@ -406,6 +444,14 @@ export default function Header() {
 
 	const user = useAtomValue(_user_);
 
+	const [currencies, setCurrencies] = useState<{
+		currencies: CurrencyType[];
+		current_id: number;
+		current_name: string;
+		current_symbol: string;
+		current_img: string;
+	}>();
+
 	const setDisableBodyScroll = useSetAtom(_disableBodyScroll_);
 
 	useEffect(() => {
@@ -421,6 +467,20 @@ export default function Header() {
 		return () => window.removeEventListener("resize", handleResize);
 	}, [isMobileMenuOpen, setDisableBodyScroll]);
 
+	useEffect(() => {
+		getCurrencies().then((res) => setCurrencies(res.data));
+	}, []);
+
+	const setGlobalLoading = useSetAtom(_globalLoading_);
+
+	const changeCurrency = (currencyId: number) => {
+		setGlobalLoading(true);
+
+		setCurrency(currencyId)
+			.then(() => window.location.reload())
+			.catch(() => setGlobalLoading(false));
+	};
+
 	return (
 		<div className="relative">
 			<header className="z-[100] relative px-5 bg-primary-background border-b border-primary-border flex items-center h-[74px] max-sm:h-16 max-xl:justify-between">
@@ -429,6 +489,54 @@ export default function Header() {
 				<SearchBar className="ml-[84px] max-xl:hidden" />
 
 				<Navigation className="h-full mx-7 max-xl:hidden" />
+
+				{currencies && (
+					<div className="flex items-center mr-4 max-xl:hidden">
+						<div className="relative group">
+							<button className="flex items-center gap-2 px-3 py-2 rounded hover:bg-accent-purple transition-colors">
+								<img
+									src={currencies.current_img}
+									alt={currencies.current_name}
+									className="w-5 h-5 object-contain"
+								/>
+								<span>{currencies.current_name}</span>
+							</button>
+
+							<div className="absolute right-0 mt-2 w-40 bg-accent-purple/10 border border-accent-purple/20 rounded-md overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+								{currencies.currencies
+									.filter(
+										(currency) =>
+											currency.id !==
+											currencies.current_id
+									)
+									.map((currency) => (
+										<button
+											key={currency.id}
+											onClick={() =>
+												changeCurrency(currency.id)
+											}
+											className={`flex items-center gap-3 w-full px-4 py-2.5 text-left hover:bg-accent-purple ${
+												currency.id ===
+												currencies.current_id
+													? "bg-accent-purple"
+													: "bg-accent-purple/10"
+											}`}
+										>
+											<img
+												src={currency.img}
+												alt={currency.name}
+												className="w-5 h-5 object-contain"
+											/>
+											<span>
+												{currency.name} (
+												{currency.symbol})
+											</span>
+										</button>
+									))}
+							</div>
+						</div>
+					</div>
+				)}
 
 				{user && (
 					<CartButton className="hidden max-xl:flex ml-auto mr-5" />
@@ -480,6 +588,39 @@ export default function Header() {
 			>
 				<div className="p-5">
 					<SearchBar className="!max-w-full" />
+
+					{currencies && (
+						<div className="my-5">
+							<div className="flex flex-wrap gap-2">
+								{currencies.currencies.map((currency) => (
+									<button
+										key={currency.id}
+										onClick={() => {
+											if (
+												currency.id !==
+												currencies.current_id
+											) {
+												changeCurrency(currency.id);
+											}
+										}}
+										className={`flex items-center gap-2 px-3 py-2 rounded border ${
+											currency.id ===
+											currencies.current_id
+												? "border-accent-purple bg-accent-purple/25"
+												: "border-accent-purple/15 bg-accent-purple/10 hover:bg-accent-purple/20"
+										}`}
+									>
+										<img
+											src={currency.img}
+											alt={currency.name}
+											className="w-5 h-5 object-contain"
+										/>
+										<span>{currency.name}</span>
+									</button>
+								))}
+							</div>
+						</div>
+					)}
 
 					<Navigation className="my-5 flex flex-col gap-5" />
 

@@ -21,8 +21,6 @@ export default function BlogArticlePage() {
 	const setGlobalLoading = useSetAtom(_globalLoading_);
 
 	useEffect(() => {
-		setGlobalLoading(true);
-
 		if (id) {
 			getBlogArticle(id.toString())
 				.then((res) => setArticle(res.data))
@@ -48,15 +46,6 @@ export default function BlogArticlePage() {
 							{formatDate(article.created_at)}
 						</span>
 					</div>
-
-					{/* <p className="text-[#c2c8d6] mt-1 text-[13px] max-sm:text-[12px]">
-						Everyday practice shows that the high quality of
-						positional research research plays a crucial role for
-						ovatnt methods.
-						<br />
-						But interactive prototypes are ambiguous and will be
-						made.
-					</p> */}
 
 					{article.photo_url && (
 						<img

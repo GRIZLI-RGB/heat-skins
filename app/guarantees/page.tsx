@@ -1,4 +1,17 @@
+"use client";
+
+import { useSetAtom } from "jotai";
+import { useEffect } from "react";
+
+import { _globalLoading_ } from "@/lib/store";
+
 export default function GuaranteesPage() {
+	const setGlobalLoading = useSetAtom(_globalLoading_);
+
+	useEffect(() => {
+		setGlobalLoading(false);
+	}, []);
+
 	return (
 		<div className="max-sm:px-6 max-sm:mt-8 max-sm:mb-10 max-sm:mb mt-[60px] mb-[68px] px-[68px] max-w-[1220px] [&>p]:text-[13px] [&>p]:leading-[24px] [&>p]:font-medium flex flex-col gap-7">
 			<h6 className="text-accent-purple text-[19px] font-bold">

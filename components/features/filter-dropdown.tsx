@@ -14,6 +14,7 @@ interface FilterDropdownProps {
 	selectedMax?: string;
 	onChange?: (selected: string[]) => void;
 	onChangeRange?: (min: string, max: string) => void;
+	defaultOpen?: boolean;
 }
 
 function FilterDropdown({
@@ -26,20 +27,35 @@ function FilterDropdown({
 	selectedMax = "",
 	onChange,
 	onChangeRange,
+	defaultOpen = false,
 }: FilterDropdownProps) {
 	const [isOpen, setIsOpen] = useState(false);
 	const [localSelected, setLocalSelected] = useState<string[]>(selected);
 	const [localMin, setLocalMin] = useState(selectedMin);
 	const [localMax, setLocalMax] = useState(selectedMax);
 
-	// Вместо них добавить единый эффект для всех пропсов
 	useEffect(() => {
-		setLocalSelected(selected);
-		setLocalMin(selectedMin || "");
-		setLocalMax(selectedMax || "");
+		if (defaultOpen) setIsOpen(true);
+	}, [defaultOpen]);
+
+	function arraysEqual(a: string[], b: string[]) {
+		if (a === b) return true;
+		if (a.length !== b.length) return false;
+		return a.every((val, i) => val === b[i]);
+	}
+
+	useEffect(() => {
+		if (
+			!arraysEqual(localSelected, selected) ||
+			localMin !== selectedMin ||
+			localMax !== selectedMax
+		) {
+			setLocalSelected(selected);
+			setLocalMin(selectedMin || "");
+			setLocalMax(selectedMax || "");
+		}
 	}, [selected, selectedMin, selectedMax]);
 
-	// Переписать обработчики изменений
 	const handleMinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const value = e.target.value;
 		if (/^[0-9]*\.?[0-9]*$/.test(value)) {

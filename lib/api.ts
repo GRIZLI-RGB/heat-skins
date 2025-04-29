@@ -1,7 +1,7 @@
 import axios from "axios";
 import { ApiGetItemsType } from "./types";
 
-const API_URL = "https://api.topskinsmarket.com/api/";
+const API_URL = "https://api.grabyourkit.com/api/";
 
 const api = axios.create({
 	baseURL: API_URL,
@@ -157,5 +157,8 @@ export const paymentInit = async ({
 export const getPaymentSystems = async () => await api.get("payment/systems");
 
 export const getCurrencies = async () => await api.get("currencies");
+
+export const setCurrency = async (currencyId: number) =>
+	await api.post("user/currency", { currency: currencyId });
 
 export default api;

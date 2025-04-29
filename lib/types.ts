@@ -160,4 +160,10 @@ export type ItemType = BaseEntityType & {
 		img: string;
 	}[];
 	currency_symbol: string;
+	rarity_color: string;
+	rarity_gradient: {
+		from: string;
+		via: string;
+		to: string;
+	};
 };

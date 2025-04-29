@@ -7,6 +7,7 @@ import "overlayscrollbars/overlayscrollbars.css";
 import "@styles/globals.css";
 import { Suspense } from "react";
 
+import "react-tooltip/dist/react-tooltip.css";
 export const metadata: Metadata = {
 	title: "HeatSkins",
 };
