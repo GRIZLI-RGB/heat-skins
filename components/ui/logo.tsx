@@ -5,12 +5,12 @@ export default function Logo({ className }: { className?: string }) {
 	return (
 		<Link
 			className={clsx(
-				"inline-flex items-center justify-center min-w-[160px]",
+				"tracking-[0.015em] font-bold text-2xl inline-flex items-center justify-center",
 				className
 			)}
 			href="/"
 		>
-			<img src="/images/logo.png" alt="" />
+			GrabYourKit
 		</Link>
 	);
 }

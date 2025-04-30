@@ -8,7 +8,7 @@ const Navigation = ({
 	className,
 }: {
 	title?: string;
-	links: string[];
+	links: { text: string; link: string }[];
 	className?: string;
 }) => {
 	return (
@@ -24,10 +24,10 @@ const Navigation = ({
 				</h6>
 			)}
 
-			{links.map((text) => (
+			{links.map(({ text, link }) => (
 				<a
 					className="font-semibold text-[12px] hover:text-accent-purple"
-					href="#"
+					href={link}
 					key={text}
 				>
 					{text}
@@ -64,23 +64,43 @@ export default function Footer() {
 						className="ml-[58px] mr-[64px] max-md:ml-0 max-md:mr-0"
 						title="Support"
 						links={[
-							"FAQ",
-							"How does it work?",
-							"Guarantees",
-							"Contacts",
+							{
+								text: "FAQ",
+								link: "/faq",
+							},
+							{
+								text: "Guarantees",
+								link: "/guarantees",
+							},
+							{ text: "Site rules", link: "/rules" },
+							{ text: "Contacts", link: "/contacts" },
 						]}
 					/>
 
 					<Navigation
 						title="Useful"
-						links={["Blog", "Reviews on Huble", "Site rules"]}
+						links={[
+							{ text: "Blog", link: "/blog" },
+							{ text: "Terms of use", link: "/terms-of-use" },
+							{ text: "Privacy policy", link: "/privacy-policy" },
+							{ text: "Cookies policy", link: "/cookies-policy" },
+						]}
 					/>
 				</div>
 
-				<div className="flex flex-col items-end ml-auto max-md:justify-center max-md:ml-0">
+				<div className="flex flex-col items-end ml-auto max-md:justify-center max-md:ml-0 max-md:items-center">
 					<Logo className="max-md:hidden" />
 
-					<p className="text-[#565d6e] text-[13px] font-medium leading-[22px] text-right mt-[74px] max-md:text-center max-md:mt-6 max-md:text-[12px]">
+					<p className="flex flex-col text-right text-[#565d6e] text-[13px] mb-8 mt-6 max-md:text-center max-md:mb-4 max-md:text-[12px]">
+						<span>YOURGAMES LTD</span>
+						<span>Company number 16382696</span>
+						<span>
+							Registered office address: 86-90 Paul Street
+						</span>
+						<span>London, Greater London, England, EC2A 4NE</span>
+					</p>
+
+					<p className="text-[#565d6e] text-[13px] font-medium leading-[22px] text-right max-md:text-center max-md:text-[12px]">
 						HeatSkins website is operated by In-Game Solutions PTE.
 						LTD
 						<br />© 2020-2025 HeatSkins, All Rights Reserved

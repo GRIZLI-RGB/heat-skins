@@ -13,64 +13,113 @@ export default function GuaranteesPage() {
 	}, []);
 
 	return (
-		<div className="max-sm:px-6 max-sm:mt-8 max-sm:mb-10 max-sm:mb mt-[60px] mb-[68px] px-[68px] max-w-[1220px] [&>p]:text-[13px] [&>p]:leading-[24px] [&>p]:font-medium flex flex-col gap-7">
+		<div className="max-sm:px-6 max-sm:mt-8 max-sm:mb-10 max-sm:mb mt-[60px] mb-[68px] px-[68px] max-w-[1220px] [&>p]:text-[13px] [&>p]:leading-[24px] [&>p]:font-medium flex flex-col gap-6">
 			<h6 className="text-accent-purple text-[19px] font-bold">
-				The guarantees
+				Our Guarantees
 			</h6>
 			<p>
-				We are In-Game Solutions PTE. LTD, a private company limited by
-				shares, registration number 202435257H, has its registered
-				address and the principal place of business at Our Privacy
-				Policy meets requirements of the European Union General Data
-				Protection Regulation (GDPR) and Singapore Personal Data
-				Protection Act.
-			</p>
-			<p>
-				This Privacy Policy explains how We collect, use, share, and
-				protect Your personal information when You use Our Website. By
-				accessing or using Our services,
-			</p>
-			<p>
-				1. INFORMATION WE COLLECT
+				At GrabYourKit, we are committed to providing a secure,
+				transparent, and legally compliant service for all users.
 				<br />
-				We may collect and process the following types of personal
-				information:
-			</p>
-			<h6 className="text-accent-purple text-[19px] font-bold">
-				Important information
-			</h6>
-			<p>
-				Information You Provide to Us <br />- Account Information: Name,
-				email address and Steam details (login, username, icon, other
-				information You made public on Steam) payment details.
-				<br /> - Profile Information: Photos, personal details,
-				descriptions and all information that You make public on the
-				Internet. <br />- Transaction Information: Details of purchases,
-				sales, and interactions on the Website.
+				Our operations adhere to the following legislation:
 			</p>
 			<p>
-				- Usage Data: Your browsing activity, pages visited, and search
-				queries.
-				<br /> - Device Information: IP address, browser type, device
-				type, operating system, and location data.
+				General Data Protection Regulation (EU) 2016/679 ({'"'}GDPR{'"'}
+				),
 			</p>
 			<p>
-				Third-Party Information
-				<br /> - We may collect information about You from third
-				parties, such as social media Websites or payment processors,
-				when You connect their services to our Website. <br />- We
-				encourage You to review privacy policies of such third parties
-				thoroughly before cooperating with them.
+				United Kingdom General Data Protection Regulation ({'"'}UK GDPR
+				{'"'}),
+			</p>
+			<p>UK Data Protection Act 2018,</p>
+			<p>UK Consumer Rights Act 2015,</p>
+			<p>ePrivacy Directive 2002/58/EC.</p>
+			<p>
+				The following guarantees are provided in accordance with these
+				regulations:
 			</p>
 			<p>
-				2. How We Use Your Information <br />- We use Your information
-				to:
-				<br /> - Provide You relevant services on Our Website. <br />-
-				Provide, improve, and personalize Our services. <br />-
-				Communicate with You regarding Your account, orders, and support
-				inquiries. <br />- Process payments and prevent fraudulent
-				activities. <br />- Send promotional content and updates (if you
-				opt-in).
+				1. Secure Payments
+				<br />
+				All transactions are processed through secure, encrypted payment
+				gateways in compliance with industry standards. We protect your
+				financial information and ensure your transaction is safe.
+			</p>
+			<p>
+				{" "}
+				2. Fast Delivery of Purchased Items
+				<br />
+				We aim to deliver purchased digital items immediately upon
+				payment confirmation. In accordance with the UK Consumer Rights
+				Act 2015 and applicable EU consumer laws, if a delivery cannot
+				be completed within a reasonable time, you are entitled to
+				request a full refund or suitable remedy.
+			</p>
+			<p>
+				3. Authenticity of Items
+				<br />
+				All digital items sold on GrabYourKit are genuine and sourced
+				from verified inventories. We guarantee that the items
+				correspond to their descriptions and meet quality expectations
+				as required by consumer protection law.
+			</p>
+			<p>
+				4. Transparent Pricing
+				<br />
+				The price displayed during checkout is the final amount payable.
+				No hidden fees or surcharges will apply after checkout, ensuring
+				compliance with EU and UK transparency and pricing regulations.
+			</p>
+			<p>
+				5. Privacy and Data Protection
+				<br />
+				Your personal data is handled lawfully, fairly, and
+				transparently, strictly following:
+			</p>
+			<p>GDPR (EU),</p>
+			<p>UK GDPR,</p>
+			<p>UK Data Protection Act 2018.</p>
+			<p>
+				You have full rights to access, rectify, delete, or restrict the
+				processing of your personal information.
+				<br />
+				You also have the right to lodge a complaint with a supervisory
+				authority, such as the Information Commissioner{"'"}s Office
+				(ICO) in the UK.
+			</p>
+			<p>
+				6. Right to Withdrawal (Limited for Digital Goods)
+				<br />
+				In compliance with the EU Consumer Rights Directive and UK
+				Consumer Contracts Regulations, you acknowledge that by agreeing
+				to immediate delivery of digital goods, you waive the statutory
+				14-day withdrawal right. We clearly inform you of this condition
+				prior to completing your purchase.
+			</p>
+			<p>
+				7. Customer Support Commitment
+				<br />
+				Our support team is available to assist with any purchase or
+				account issues. We aim to respond promptly and resolve queries
+				fairly, in accordance with applicable consumer protection
+				standards. You can reach our support team at
+				support@grabyourkit.com.
+			</p>
+			<p>
+				Limitation of Guarantees
+				<br />
+				While we are committed to providing a reliable and high-quality
+				service, GrabYourKit is not liable for:
+			</p>
+			<p>Service interruptions caused by force majeure events,</p>{" "}
+			<p>Errors arising from user actions,</p>{" "}
+			<p>
+				Failures or limitations of third-party platforms (e.g., Steam),
+			</p>
+			<p>Scheduled or unscheduled maintenance periods.</p>
+			<p>
+				These limitations do not affect your statutory rights under
+				applicable consumer protection laws.
 			</p>
 		</div>
 	);

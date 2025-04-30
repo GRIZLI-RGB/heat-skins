@@ -304,24 +304,6 @@ export default function ItemPage({
 							</div>
 
 							<div className="mt-3.5 flex gap-5 relative max-xs:flex-col max-xs:gap-2 max-xs:mt-3">
-								<div className="flex flex-col gap-6 absolute right-0 -top-5 -translate-y-full items-center grayscale-50 max-xs:gap-4">
-									{["vk", "twitter", "discord", "steam"].map(
-										(social) => (
-											<a
-												className="group"
-												href="#"
-												key={social}
-											>
-												<img
-													className="group-hover:brightness-[1000%]"
-													src={`/icons/social/${social}.png`}
-													alt=""
-												/>
-											</a>
-										)
-									)}
-								</div>
-
 								{user && (
 									<button
 										onClick={() => toggleCart(item.id)}

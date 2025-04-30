@@ -375,6 +375,7 @@ export default function HomePage() {
 						/>
 
 						<FilterDropdown
+							defaultOpen
 							variant="price"
 							min={filtersData.min_price}
 							max={filtersData.max_price}
@@ -390,7 +391,6 @@ export default function HomePage() {
 						/>
 
 						<FilterDropdown
-							defaultOpen
 							variant="float"
 							min={filtersData.float_min}
 							max={filtersData.float_max}
