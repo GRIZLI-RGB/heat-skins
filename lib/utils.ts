@@ -1,3 +1,5 @@
+import { ItemQualityType } from "./types";
+
 export const formatDate = (
 	inputDate: Date,
 	format: "long" | "short" = "long"
@@ -38,4 +40,34 @@ export const truncateString = (str: string, maxLength: number = 32): string => {
 	}
 
 	return str.slice(0, maxLength) + "...";
+};
+
+export const getItemGradient = (quality: ItemQualityType) => {
+	return {
+		"Factory New": {
+			from: "#2E2F3F80",
+			via: "#3E2E6533",
+			to: "#204e74",
+		},
+		"Minimal Wear": {
+			from: "#2E2F3F80",
+			via: "#3E2E6533",
+			to: "#2c7153",
+		},
+		"Field-Tested": {
+			from: "#2E2F3F80",
+			via: "#2E376533",
+			to: "#8c6d3d",
+		},
+		"Well-Worn": {
+			from: "#2E2F3F80",
+			via: "#2E376533",
+			to: "#754d36",
+		},
+		"Battle-Scarred": {
+			from: "#2E2F3F80",
+			via: "#2E376533",
+			to: "#7c2e41",
+		},
+	}[quality];
 };

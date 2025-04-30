@@ -35,10 +35,10 @@ export default function ItemCard({ item }: { item: ItemType }) {
 		>
 			{item.stickers.length > 0 && (
 				<div className="raise-up absolute flex flex-col top-3 right-2.5 gap-2.5">
-					{item.stickers.map((sticker) => (
+					{item.stickers.map((sticker, index) => (
 						<img
 							className="h-5"
-							key={sticker.id}
+							key={`${sticker.id}-${index}`}
 							src={sticker.img}
 							alt={sticker.name}
 						/>

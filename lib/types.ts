@@ -167,3 +167,18 @@ export type ItemType = BaseEntityType & {
 		to: string;
 	};
 };
+
+export type ItemQualityType =
+	| "Factory New"
+	| "Minimal Wear"
+	| "Field-Tested"
+	| "Well-Worn"
+	| "Battle-Scarred";
+
+export type WearCategoryType = {
+	name: ItemQualityType;
+	count: number;
+	min_price: number;
+	max_price: number;
+	order: number;
+};

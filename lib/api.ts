@@ -1,5 +1,5 @@
 import axios from "axios";
-import { ApiGetItemsType } from "./types";
+import { ApiGetItemsType, ItemQualityType } from "./types";
 
 const API_URL = "https://api.grabyourkit.com/api/";
 
@@ -124,8 +124,21 @@ export const getTransactions = async () => await api.get("transactions");
 
 export const getPurchases = async () => await api.get("purchase-history");
 
-export const getItem = async (id: number | string) =>
-	await api.get(`items/${id}`);
+export const getItem = async ({
+	id,
+	wear_category,
+	page,
+}: {
+	id: number | string;
+	wear_category?: ItemQualityType;
+	page?: number;
+}) =>
+	await api.get(`items/${id}`, {
+		params: {
+			wear_category,
+			page,
+		},
+	});
 
 export const getItemFilters = async () => await api.get("items/filters");
 

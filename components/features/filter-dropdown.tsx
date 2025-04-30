@@ -2,7 +2,6 @@
 
 import clsx from "clsx";
 import { useState, useEffect, memo } from "react";
-import { useDebouncedCallback } from "use-debounce";
 
 interface FilterDropdownProps {
 	variant: string;
@@ -59,36 +58,16 @@ function FilterDropdown({
 	const handleMinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const value = e.target.value;
 		if (/^[0-9]*\.?[0-9]*$/.test(value)) {
-			setLocalMin(value);
-			debouncedRangeChange(value, localMax);
+			onChangeRange?.(value, selectedMax);
 		}
 	};
 
 	const handleMaxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const value = e.target.value;
 		if (/^[0-9]*\.?[0-9]*$/.test(value)) {
-			setLocalMax(value);
-			debouncedRangeChange(localMin, value);
+			onChangeRange?.(selectedMin, value);
 		}
 	};
-
-	// Оптимизировать debounce
-	const debouncedRangeChange = useDebouncedCallback(
-		(newMin: string, newMax: string) => {
-			if (onChangeRange) {
-				const minNum = parseFloat(newMin) || 0;
-				const maxNum = parseFloat(newMax) || 0;
-
-				if (
-					minNum !== parseFloat(selectedMin || "") ||
-					maxNum !== parseFloat(selectedMax || "")
-				) {
-					onChangeRange(newMin, newMax);
-				}
-			}
-		},
-		500
-	);
 
 	const handleBlur = () => {
 		const validate = (value: string, defaultVal: string): string => {

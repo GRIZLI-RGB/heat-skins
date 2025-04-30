@@ -79,7 +79,6 @@ export default function HomePage() {
 	const [page, setPage] = useState(1);
 	const [hasMore, setHasMore] = useState(true);
 	const [loading, setLoading] = useState(false);
-	const observer = useRef<IntersectionObserver | null>(null);
 	const bottomRef = useRef(null);
 
 	const searchQuery = useAtomValue(_searchQuery_);
@@ -97,13 +96,6 @@ export default function HomePage() {
 	});
 
 	const [debouncedFilters] = useDebounceValue(filters, 500);
-
-	useEffect(() => {
-		setItems([]);
-		setPage(1);
-		setHasMore(true);
-		fetchItems();
-	}, [debouncedFilters]);
 
 	const [filtersData, setFiltersData] = useState({
 		types: [],
@@ -129,116 +121,77 @@ export default function HomePage() {
 		loadFilters();
 	}, []);
 
-	const fetchItems = useCallback(async () => {
-		if (loading || !hasMore) return;
-
-		setLoading(true);
-
-		try {
-			const apiFilters: ApiGetItemsType = { page };
-
-			if (filters.types.length > 0) apiFilters.types = filters.types;
-			if (filters.phases.length > 0) apiFilters.phases = filters.phases;
-			if (filters.price_min)
-				apiFilters.price_min = parseFloat(filters.price_min);
-			if (filters.price_max)
-				apiFilters.price_max = parseFloat(filters.price_max);
-			if (filters.wears.length > 0) apiFilters.wears = filters.wears;
-			if (filters.rarities.length > 0)
-				apiFilters.rarities = filters.rarities;
-			if (filters.float_min)
-				apiFilters.float_min = parseFloat(filters.float_min);
-			if (filters.float_max)
-				apiFilters.float_max = parseFloat(filters.float_max);
-			if (filters.stattrack !== undefined)
-				apiFilters.stattrack = filters.stattrack;
-			if (filters.souvenir !== undefined)
-				apiFilters.souvenir = filters.souvenir;
-
-			if (searchQueryDebounced !== "") {
-				apiFilters.search = searchQueryDebounced;
-			}
-
-			const res = await getItems(apiFilters);
-
-			if (res.data.data.length === 0) {
-				setHasMore(false);
-			} else {
-				setItems((prev) =>
-					page === 1 ? res.data.data : [...prev, ...res.data.data]
-				);
-				setPage((prev) => prev + 1);
-			}
-		} catch (err) {
-			console.error("Ошибка загрузки:", err);
-		} finally {
-			setLoading(false);
-			setGlobalLoading(false);
-		}
-	}, [loading, hasMore, page, filters, searchQueryDebounced]);
-
 	useEffect(() => {
-		setItems([]);
-		setPage(1);
-		setHasMore(true);
-		fetchItems();
-	}, [searchQueryDebounced]);
+		if (!bottomRef.current || !hasMore || loading) return;
 
-	useEffect(() => {
-		if (!bottomRef.current) return;
-
-		if (observer.current) observer.current.disconnect();
-
-		observer.current = new IntersectionObserver(
+		const observer = new IntersectionObserver(
 			([entry]) => {
-				if (
-					entry.isIntersecting &&
-					hasMore &&
-					!loading &&
-					!searchQueryDebounced
-				) {
-					fetchMoreItems(); // Выносим логику подгрузки в отдельную функцию
-				}
+				if (entry.isIntersecting) fetchItems();
 			},
-			{
-				root: null,
-				rootMargin: "200px",
-				threshold: 0.1,
-			}
+			{ rootMargin: "200px" }
 		);
 
-		observer.current.observe(bottomRef.current);
+		observer.observe(bottomRef.current);
+		return () => observer.disconnect();
+	}, [hasMore, loading]);
 
-		return () => {
-			if (observer.current) observer.current.disconnect();
-		};
-	}, [bottomRef.current, hasMore, loading, searchQueryDebounced]);
+	useEffect(() => {
+		setHasMore(true);
+		fetchItems(true);
+	}, [debouncedFilters, searchQueryDebounced]);
 
-	const fetchMoreItems = useCallback(async () => {
-		if (loading || !hasMore || searchQueryDebounced) return;
+	const fetchItems = useCallback(
+		async (isNewSearch = false) => {
+			if (loading || !hasMore) return;
 
-		setLoading(true);
+			setLoading(true);
+			const targetPage = isNewSearch ? 1 : page;
 
-		try {
-			const res = await getItems({ page });
+			try {
+				const apiFilters: ApiGetItemsType = { page: targetPage };
 
-			if (res.data.data.length === 0) {
-				setHasMore(false);
-			} else {
-				setItems((prev) => [...prev, ...res.data.data]);
-				setPage((prev) => prev + 1);
+				if (filters.types.length > 0) apiFilters.types = filters.types;
+				if (filters.phases.length > 0)
+					apiFilters.phases = filters.phases;
+				if (filters.price_min)
+					apiFilters.price_min = parseFloat(filters.price_min);
+				if (filters.price_max)
+					apiFilters.price_max = parseFloat(filters.price_max);
+				if (filters.wears.length > 0) apiFilters.wears = filters.wears;
+				if (filters.rarities.length > 0)
+					apiFilters.rarities = filters.rarities;
+				if (filters.float_min)
+					apiFilters.float_min = parseFloat(filters.float_min);
+				if (filters.float_max)
+					apiFilters.float_max = parseFloat(filters.float_max);
+				if (filters.stattrack !== undefined)
+					apiFilters.stattrack = filters.stattrack;
+				if (filters.souvenir !== undefined)
+					apiFilters.souvenir = filters.souvenir;
+
+				if (searchQueryDebounced)
+					apiFilters.search = searchQueryDebounced;
+
+				const res = await getItems(apiFilters);
+
+				setItems((prev) =>
+					isNewSearch ? res.data.data : [...prev, ...res.data.data]
+				);
+				setHasMore(res.data.data.length > 0);
+				setPage(targetPage + 1);
+			} catch (err) {
+				console.error("Ошибка загрузки:", err);
+			} finally {
+				setLoading(false);
+				setGlobalLoading(false);
 			}
-		} catch (err) {
-			console.error("Ошибка загрузки:", err);
-		} finally {
-			setLoading(false);
-			setGlobalLoading(false);
-		}
-	}, [page, loading, hasMore, searchQueryDebounced]);
+		},
+		[page, filters, searchQueryDebounced, hasMore]
+	);
 
 	return (
 		<>
-			<div className="p-5 pb-1 hidden max-xs:block">
+			{/* <div className="p-5 pb-1 hidden max-xs:block">
 				<button
 					className="hover:brightness-125 max-w-full flex items-center justify-center uppercase text-center text-[16px] font-bold bg-primary-background border border-primary-border rounded-md w-full h-12"
 					onClick={() => setIsMobileFilterOpen(!isMobileFilterOpen)}
@@ -263,7 +216,7 @@ export default function HomePage() {
 						/>
 					</svg>
 				</button>
-			</div>
+			</div> */}
 
 			<div
 				className={clsx(
@@ -344,7 +297,7 @@ export default function HomePage() {
 
 						<button
 							className="text-[#959dae] font-medium hover:brightness-125"
-							onClick={() =>
+							onClick={() => {
 								setFilters({
 									types: [],
 									phases: [],
@@ -354,8 +307,11 @@ export default function HomePage() {
 									rarities: [],
 									float_min: "",
 									float_max: "",
-								})
-							}
+								});
+								setItems([]);
+								setPage(1);
+								setHasMore(true);
+							}}
 						>
 							Reset
 						</button>
@@ -469,22 +425,24 @@ export default function HomePage() {
 					</h3>
 
 					<div className="flex gap-3 flex-wrap max-h-[850px] overflow-auto hide-scrollbar max-sm:grid max-sm:max-h-[600px] max-sm:gap-2 max-sm:grid-cols-2 max-[480px]:grid-cols-1">
-						{items.map((item) => (
-							<ItemCard key={item.id} item={item} />
+						{items.map((item, index) => (
+							<ItemCard key={`${item.id}-${index}`} item={item} />
 						))}
 						{loading && (
-							<div className="w-full text-center p-4">
+							<div className="font-semibold text-[16px] 4w-full text-center p-4">
 								Loading...
 							</div>
 						)}
 						<div ref={bottomRef} className="w-full h-4" />   {" "}
 					</div>
 
-					<img
-						className="absolute left-0 right-0 bottom-0 pointer-events-none"
-						src="/images/decorations/items-shadow.png"
-						alt=""
-					/>
+					{!loading && (
+						<img
+							className="z-[5] absolute left-0 right-0 bottom-0 pointer-events-none"
+							src="/images/decorations/items-shadow.png"
+							alt=""
+						/>
+					)}
 				</section>
 			</div>
 		</>
