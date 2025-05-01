@@ -78,8 +78,9 @@ export default function ClientWrapper({
 	const [isOpenPurchasePaymentModal, setIsOpenPurchasePaymentModal] =
 		useState(false);
 
-	const [isOpenPurchaseItemsModal, setIsOpenPurchaseItemsModal] =
-		useState(false);
+	const [isOpenPurchaseItemsModal, setIsOpenPurchaseItemsModal] = useAtom(
+		_isOpenReplenishmentModal_
+	);
 
 	const [
 		isOpenSuccessfulReplenishmentModal,
@@ -501,6 +502,7 @@ export default function ClientWrapper({
 				</div>
 			</Modal>
 
+			{/* Куплен предмет(ы) */}
 			<Modal
 				open={isOpenPurchaseItemsModal}
 				onClose={() => setIsOpenPurchaseItemsModal(false)}
@@ -530,10 +532,17 @@ export default function ClientWrapper({
 						Go to your personal account to receive the items
 					</p>
 
-					<Button text="Go to inventory" />
+					<Button
+						text="Go to inventory"
+						onClick={() =>
+							(window.location.href =
+								"/personal-account/inventory")
+						}
+					/>
 				</div>
 			</Modal>
 
+			{/* Успешное пополнение счета */}
 			<Modal
 				open={isOpenSuccessfulReplenishmentModal}
 				onClose={() => setIsOpenSuccessfulReplenishmentModal(false)}

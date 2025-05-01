@@ -16,10 +16,12 @@ import {
 	_disableBodyScroll_,
 	_globalLoading_,
 	_isMobileMenuOpen_,
+	_isOpenPurchaseItemsModal_,
 	_isOpenReplenishmentModal_,
 	_user_,
 } from "@/lib/store";
 import {
+	buyItems,
 	getCurrencies,
 	getItemsByIds,
 	getOauthSteamLink,
@@ -218,6 +220,10 @@ const CartButton = ({ className }: { className?: string }) => {
 			  cartItems.reduce((acc, item) => +item.price + acc, 0)
 			: false;
 
+	const setGlobalLoading = useSetAtom(_globalLoading_);
+
+	const setIsOpenPurchaseItemsModal = useSetAtom(_isOpenPurchaseItemsModal_);
+
 	return (
 		<div className={clsx("relative", className)} ref={cartRef}>
 			<button
@@ -386,7 +392,28 @@ const CartButton = ({ className }: { className?: string }) => {
 												<button
 													onClick={() => {
 														if (isEnoughMoney) {
-															// TODO
+															setGlobalLoading(
+																true
+															);
+
+															buyItems(
+																cartItemsIds
+															)
+																.then(() => {
+																	setIsOpenPurchaseItemsModal(
+																		true
+																	);
+																})
+																.catch(() => {
+																	alert(
+																		"Unknown error"
+																	);
+																})
+																.finally(() =>
+																	setGlobalLoading(
+																		false
+																	)
+																);
 														}
 													}}
 													data-tooltip-hidden={
