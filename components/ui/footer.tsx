@@ -72,7 +72,7 @@ export default function Footer() {
 								text: "Guarantees",
 								link: "/guarantees",
 							},
-							{ text: "Site rules", link: "/rules" },
+							// { text: "Site rules", link: "/rules" },
 							{ text: "Contacts", link: "/contacts" },
 						]}
 					/>
@@ -101,9 +101,9 @@ export default function Footer() {
 					</p>
 
 					<p className="text-[#565d6e] text-[13px] font-medium leading-[22px] text-right max-md:text-center max-md:text-[12px]">
-						HeatSkins website is operated by In-Game Solutions PTE.
-						LTD
-						<br />© 2020-2025 HeatSkins, All Rights Reserved
+						GrabYourKit website is operated by In-Game Solutions
+						PTE. LTD
+						<br />© 2020-2025 GrabYourKit, All Rights Reserved
 					</p>
 				</div>
 			</div>

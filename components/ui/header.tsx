@@ -40,10 +40,10 @@ const Navigation = ({ className }: { className?: string }) => {
 					text: "FAQ",
 					link: "/faq",
 				},
-				{
-					text: "Rules",
-					link: "/rules",
-				},
+				// {
+				// 	text: "Rules",
+				// 	link: "/rules",
+				// },
 			].map(({ text, link }) => (
 				<a
 					className={clsx(

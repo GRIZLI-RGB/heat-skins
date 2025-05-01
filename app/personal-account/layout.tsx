@@ -85,7 +85,7 @@ export default function PersonalAccountLayout({
 
 	const handleCopy = () => {
 		navigator.clipboard.writeText(
-			`https://topskinsmarket.com?ref=${user?.id}`
+			`https://grabyourkit.com?ref=${user?.id}`
 		);
 		setCopied(true);
 		setTimeout(() => setCopied(false), 2000);
@@ -330,7 +330,7 @@ export default function PersonalAccountLayout({
 										id="referral-link"
 										type="text"
 										readOnly
-										value={`https://topskinsmarket.com?ref=${user.id}`}
+										value={`https://grabyourkit.com?ref=${user.id}`}
 										className="bg-[#171c29] text-sm text-white px-3 py-2 rounded-md w-full outline-none"
 									/>
 									<button
