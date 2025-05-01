@@ -14,6 +14,7 @@ import Loader from "../ui/loader";
 
 import {
 	_globalLoading_,
+	_isOpenPurchaseItemsModal_,
 	_isOpenReplenishmentModal_,
 	_user_,
 } from "@/lib/store";
@@ -79,7 +80,7 @@ export default function ClientWrapper({
 		useState(false);
 
 	const [isOpenPurchaseItemsModal, setIsOpenPurchaseItemsModal] = useAtom(
-		_isOpenReplenishmentModal_
+		_isOpenPurchaseItemsModal_
 	);
 
 	const [
