@@ -490,7 +490,7 @@ export default function ItemPage({
 								{offers.similar_offers.total} offers
 							</BlockTitle>
 
-							{offers.wear_categories.length > 0 && (
+							{offers.wear_categories && offers.wear_categories.length > 0 && (
 								<div className="flex flex-wrap gap-2 ml-4">
 									{offers.wear_categories.map(
 										(wearCategory) => {
