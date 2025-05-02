@@ -95,8 +95,8 @@ export default function BlogPage() {
 						<span>Recent blogs</span>
 					</h6>
 
-					<div className="mt-[30px] flex items-start gap-4 max-sm:mt-6 max-sm:flex-col">
-						<div className="grid grid-cols-3 gap-4 max-md:grid-cols-2 w-full max-xs:!grid-cols-1">
+					<div className="mt-[30px] flex items-start gap-3 max-sm:mt-6 max-sm:flex-col">
+						<div className="grid grid-cols-3 gap-3 max-md:grid-cols-2 w-full max-xs:!grid-cols-1">
 							{articles.map((article) => (
 								<Link
 									className="relative max-sm:p-3.5 p-5 rounded-lg overflow-hidden h-[200px] leading-[100%] group"

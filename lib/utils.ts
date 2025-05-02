@@ -34,7 +34,7 @@ export const formatDate = (
 	}
 };
 
-export const truncateString = (str: string, maxLength: number = 32): string => {
+export const truncateString = (str: string, maxLength: number = 80): string => {
 	if (str.length <= maxLength) {
 		return str;
 	}

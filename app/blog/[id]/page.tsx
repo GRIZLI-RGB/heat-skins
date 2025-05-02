@@ -49,7 +49,7 @@ export default function BlogArticlePage() {
 
 					{article.photo_url && (
 						<img
-							className="block rounded-md overflow-hidden my-7 object-cover min-h-[130px] max-h-[480px] w-full"
+							className="block rounded-md overflow-hidden my-7 mx-auto"
 							src={article.photo_url.toString()}
 							alt=""
 						/>
@@ -61,71 +61,6 @@ export default function BlogArticlePage() {
 							__html: article.content,
 						}}
 					/>
-
-					{/* <p>
-							Being just a part of the overall picture, replicated
-							from foreign sources, modern research has been
-							subjected to a series of independent studies.
-						</p>
-
-						<p>
-							The high level of involvement of representatives of
-							the target audience is a clear proof of a simple
-							fact: synthetic testing plays an important role in
-							shaping the timely completion of a super task. For
-							the modern world, the basic vector of development
-							plays an important role in the formation of new
-							principles for the formation of the material,
-							technical and personnel base.
-						</p>
-
-						<p>
-							Clearly, the conclusions drawn on the basis of
-							Internet analytics are only a{" "}
-							<span className="text-[#f5aa33]">
-								method of political participation
-							</span>
-							and are functionally separated into independent
-							elements.
-						</p>
-
-						<p>
-							As has been repeatedly mentioned, some features of
-							domestic policy have been declared to violate
-							universal norms of ethics and morality. The clarity
-							of our position is obvious: the new model of
-							organizational activity requires us to analyze
-							thoughtful reasoning. In our quest to improve the
-							user experience, we are missing the key
-						</p>
-
-						<p className="font-medium text-[#515a6f]">
-							Banal but irrefutable conclusions, as well as
-							interactive prototypes, call us to new achievements,
-							which, in turn, should be described in as much
-							detail as possible. Each of us understands the
-							obvious thing: constant quantitative growth and the
-							scope of our activity plays an important role in the
-							formation of clustering efforts. In our quest to
-							improve the user experience, we miss that the
-							shareholders of the largest companies are calling us
-							to new achievements, which, in turn, must be called
-							to account. Within the framework of the
-							specification of modern standards, representatives
-							of modern social reserves, initiated exclusively
-							synthetically, are considered exclusively in the
-							context of marketing and financial prerequisites.
-						</p>
-
-						<p>
-							Within the framework of the specification of modern
-							standards, the basic scenarios of user behavior are
-							nothing more than the quintessence of marketings
-							victory over reason and should be considered
-							exclusively in the context of marketing and
-							financial prerequisites. Cartel agreements are not
-							allowed
-						</p> */}
 				</article>
 
 				{recentArticles && (
